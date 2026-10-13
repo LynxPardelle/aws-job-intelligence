@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/aji/schemas/search-policy.schema.json",
+  "title": "AWS Job Intelligence candidate search policy v1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["candidate_id", "shortlist_threshold"],
+  "properties": {
+    "candidate_id": {"type": "string", "pattern": "^[a-z0-9_-]+$"},
+    "roles": {"$ref": "#/$defs/terms"},
+    "technologies": {"$ref": "#/$defs/terms"},
+    "allowed_seniority": {"$ref": "#/$defs/terms"},
+    "allowed_modalities": {"$ref": "#/$defs/terms"},
+    "eligible_countries": {"const": ["MX"]},
+    "minimum_salary": {"type": ["number", "null"], "minimum": 0},
+    "salary_currency": {"type": ["string", "null"]},
+    "salary_interval": {"type": "string", "minLength": 1},
+    "excluded_companies": {"$ref": "#/$defs/terms"},
+    "shortlist_threshold": {"type": "integer", "minimum": 0, "maximum": 100},
+    "prepare_threshold": {"type": "integer", "minimum": 0, "maximum": 100},
+    "max_jobs_per_day": {"type": "integer", "minimum": 1, "maximum": 100},
+    "application_mode": {"const": "PREPARE"}
+  },
+  "$defs": {
+    "terms": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    }
+  }
+}

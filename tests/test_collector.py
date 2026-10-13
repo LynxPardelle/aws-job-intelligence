@@ -39,9 +39,29 @@ class CollectorTests(unittest.TestCase):
 
         self.assertEqual(result, {"status": "OK", "jobs_written": 1, "sources": 1})
         self.assertEqual(calls, [("greenhouse", "acmeexample", "Acme Example")])
-        self.assertEqual(written[0]["job_id"], "greenhouse:acmeexample:101")
-        self.assertGreater(written[0]["expires_at"], 0)
-        self.assertNotIn("candidate_id", written[0])
+        self.assertEqual([item.get("status") for item in written], ["STARTED", "open", "COMPLETE"])
+        self.assertEqual(written[0]["job_id"], "run#2026-10-13")
+        self.assertEqual(written[1]["job_id"], "greenhouse:acmeexample:101")
+        self.assertEqual(written[1]["collection_run_id"], written[2]["run_id"])
+        self.assertEqual(written[2]["job_count"], 1)
+        self.assertGreater(written[1]["expires_at"], 0)
+        self.assertNotIn("candidate_id", written[1])
+
+    def test_failed_write_leaves_run_unfinished(self):
+        written = []
+
+        def writer(item):
+            written.append(item)
+            if item.get("record_type") == "job":
+                raise RuntimeError("simulated database failure")
+
+        with self.assertRaises(RuntimeError):
+            collect_once([{"source": "greenhouse", "board": "acmeexample",
+                           "company": "Acme Example", "enabled": True}],
+                         "2026-10-13T14:00:00Z", fetcher=lambda *_: sample_jobs(),
+                         writer=writer, max_sources=10)
+        self.assertEqual(written[0]["status"], "STARTED")
+        self.assertFalse(any(item.get("status") == "COMPLETE" for item in written))
 
     def test_invalid_source_stops_before_fetch_or_write(self):
         calls = []
@@ -67,8 +87,9 @@ class CollectorTests(unittest.TestCase):
             result = handler({}, None)
 
         self.assertEqual(result, {"status": "OK", "jobs_written": 1, "sources": 1})
-        self.assertEqual(writes[0]["Item"]["job_id"], "greenhouse:acmeexample:101")
-        self.assertNotIn("candidate_id", writes[0]["Item"])
+        self.assertEqual(writes[1]["Item"]["job_id"], "greenhouse:acmeexample:101")
+        self.assertEqual(writes[2]["Item"]["status"], "COMPLETE")
+        self.assertNotIn("candidate_id", writes[1]["Item"])
 
 
 if __name__ == "__main__":

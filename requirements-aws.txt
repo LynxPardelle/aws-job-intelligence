@@ -1,0 +1,2 @@
+# Optional local pull client. The Lambda runtime supplies its own Boto3 SDK.
+boto3==1.43.112

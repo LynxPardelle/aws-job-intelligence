@@ -76,6 +76,18 @@ class MatcherTests(unittest.TestCase):
         self.assertEqual(match_job(replace(job, modality="onsite"), POLICY, now="2026-10-13T12:00:00Z").decision,
                          "exclude")
 
+    def test_role_and_company_preferences_are_enforced(self):
+        job = replace(example_job(), mexico_eligibility="eligible")
+        wrong_role = replace(POLICY, roles=("Frontend Developer",))
+        excluded_company = replace(POLICY, excluded_companies=("acme example",))
+        self.assertIn("incompatible_role", match_job(job, wrong_role,
+                      now="2026-10-13T12:00:00Z").reasons)
+        self.assertIn("excluded_company", match_job(job, excluded_company,
+                      now="2026-10-13T12:00:00Z").reasons)
+        allowed = replace(POLICY, roles=("Data Engineer",))
+        self.assertEqual(match_job(job, allowed, now="2026-10-13T12:00:00Z").decision,
+                         "shortlist")
+
 
 if __name__ == "__main__":
     unittest.main()

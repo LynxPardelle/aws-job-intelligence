@@ -11,7 +11,9 @@
 - Se permiten auditoría de solo lectura, edición local, pruebas locales y `cdk synth` local.
 - Pedir aprobación expresa antes de desplegar infraestructura, modificar IAM, activar servicios que generen gastos, destruir recursos o enviar postulaciones reales. La existencia de un perfil administrador no constituye autorización.
 - Mantener `AUTO_SUBMIT` desactivado. Un score, un CV generado o un formulario rellenado nunca autorizan un envío.
-- No usar claves IAM permanentes para la operación desatendida ni desactivar salvaguardas de Codex.
+- En este equipo, el usuario autorizó expresamente el perfil AWS `default` del usuario administrador existente. No copiar ni exportar su clave al repositorio. Para la futura corrida de Alec, usar una sesión asumida del rol `aji-alec-access-dev` si se despliega; el administrador de origen conserva sus privilegios.
+- Preparar primero este equipo y los stacks `aji-shared-dev` y `aji-alec-dev`. El equipo y stack de Héctor esperan al handoff posterior solicitado por el usuario.
+- No desactivar salvaguardas de Codex.
 
 ## Datos y aislamiento
 

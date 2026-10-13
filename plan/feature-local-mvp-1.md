@@ -26,7 +26,7 @@ Implementar y comprobar localmente la Fase 1 y la síntesis local de Fase 2 del 
 - **SEC-002**: Mantener perfiles, CVs, tokens, paquetes de candidatura y secretos fuera de Git y logs.
 - **SEC-003**: Fijar `AUTO_SUBMIT` desactivado y no implementar envío real en este paquete.
 - **CON-001**: Toda integración externa se prueba con fixtures; los tests no necesitan AWS, Drive ni portales.
-- **CON-002**: La cuenta AWS detectada tiene un usuario administrador con clave permanente; su uso para automatización queda bloqueado.
+- **CON-002**: La cuenta AWS detectada tiene un usuario administrador con clave permanente. El usuario autorizó usar el perfil `default` en este PC el 2026-10-13; el riesgo y la excepción están en ADR-002. Para la futura tarea de Alec se propone un rol asumido.
 - **CON-003**: El objetivo menor de USD 5/mes requiere verificación final en AWS Pricing Calculator antes del despliegue.
 - **PAT-001**: Pruebas de comportamiento antes del código de producción y verificación de fallo esperado, luego paso.
 
@@ -64,7 +64,12 @@ Implementar y comprobar localmente la Fase 1 y la síntesis local de Fase 2 del 
 | TASK-010 | Definir Scheduler, Lambda, DynamoDB, S3, IAM mínimo, logs 7 días y límites; validar ausencia de NAT, EC2, RDS, ECS/EKS, API Gateway y Bedrock en `infra/test/`. | ✅ | 2026-10-13 |
 | TASK-011 | Ejecutar `npm ci` y `npm run synth` dentro de `infra/`; guardar resumen de plantillas y revisión de costos en `docs/costs/estimate.md`. No ejecutar `cdk deploy` ni `cdk diff` con perfil administrador sin revisión. | ✅ | 2026-10-13 |
 
-La síntesis CDK es un **esqueleto de desarrollo**: Scheduler y collector quedan desactivados, y falta el publicador privado de lotes antes de operar el flujo diario.
+La síntesis CDK es un **esqueleto de desarrollo**: ambos Scheduler y las Lambdas collector/publicador quedan desactivados. El primer PC usa shared+Alec; el stack de Héctor sólo se crea al suministrar su principal distinto. La activación y las pruebas AWS requieren aprobación.
+
+| Task | Description | Completed | Date |
+|------|-------------|-----------|------|
+| TASK-019 | Añadir marcador de recolección COMPLETE, índice por corrida y publicador privado por candidato con manifiesto FAILED previo a READY; probar fallos y aislamiento con clientes falsos. | ✅ | 2026-10-13 |
+| TASK-020 | Añadir Lambda y Scheduler de publicador a las 08:30, desactivados, IAM limitado y alarma; sintetizar shared+Alec y revisar costo del índice. | ✅ | 2026-10-13 |
 
 ### Implementation Phase 3
 
@@ -76,7 +81,12 @@ La síntesis CDK es un **esqueleto de desarrollo**: Scheduler y collector quedan
 | TASK-013 | Crear `codex/daily-run.md` y simulador con perfiles ficticios; impedir preparación sin `verified-profile.json` aprobado. | ✅ | 2026-10-13 |
 | TASK-014 | Probar E2E local con lote ficticio que genere análisis y resumen sin postulación, registrar evidencia en `docs/progress.md`. | ✅ | 2026-10-13 |
 
-El pull real de AWS, lock persistente y automatizaciones Desktop/Remote siguen pendientes de identidades y pruebas por candidato; la simulación no completa la Fase 3 operativa.
+El pull con Boto3 y lock condicional está codificado para Alec, pero no se ejecutó contra AWS porque los recursos no existen. La simulación no completa la Fase 3 operativa ni valida Codex Remote.
+
+| Task | Description | Completed | Date |
+|------|-------------|-----------|------|
+| TASK-021 | Preparar vista previa local de lote, resumen de oportunidades y script para asumir rol de Alec desde el perfil administrador, con `--claim` explícito para el lock. | ✅ | 2026-10-13 |
+| TASK-022 | Tras despliegue aprobado: registrar outputs de rol/bucket en `private/local-aws.json`, probar vista previa, lock, permisos negativos y visibilidad Remote. | | |
 
 ### Implementation Phase 4
 
@@ -100,7 +110,7 @@ El pull real de AWS, lock persistente y automatizaciones Desktop/Remote siguen p
 - **DEP-001**: Python 3.11+ para Fase 1; ya existe Python 3.13.15. La demo PDF usa `requirements-dev.txt` con ReportLab, pypdf y tzdata en Windows.
 - **DEP-002**: Node.js y npm para CDK v2; ya existen Node 24.21.0 y npm 11.19.0.
 - **DEP-003**: Dependencias CDK fijadas en `infra/package-lock.json`; instalación local mediante `npm ci` antes de síntesis.
-- **DEP-004**: Identidades AWS temporales y políticas privadas por usuario, pendientes para cualquier operación remota.
+- **DEP-004**: El perfil administrador `default` de este PC está autorizado como origen; el rol temporal de Alec y la política privada aún requieren despliegue aprobado. El segundo PC permanece pendiente.
 - **DEP-005**: Perfil profesional verificado y aprobado por cada titular, pendiente para CVs reales.
 
 ## 5. Files
@@ -110,7 +120,7 @@ El pull real de AWS, lock persistente y automatizaciones Desktop/Remote siguen p
 - **FILE-003**: `tests/*.py` y `tests/fixtures/*.json` — pruebas y datos inventados.
 - **FILE-004**: `infra/` — CDK TypeScript y pruebas de plantilla.
 - **FILE-005**: `docs/progress.md`, `docs/setup/environment-audit.md`, `docs/architecture/adr-001-isolation.md`, `docs/costs/estimate.md` — evidencia de ejecución y decisiones.
-- **FILE-006**: `config/*.example.yaml` — ejemplos sin preferencias reales.
+- **FILE-006**: `config/*.example.yaml` y `config/search-policy.example.json` — ejemplos sin preferencias reales.
 
 ## 6. Testing
 
@@ -124,7 +134,7 @@ El pull real de AWS, lock persistente y automatizaciones Desktop/Remote siguen p
 
 ## 7. Risks & Assumptions
 
-- **RISK-001**: El usuario IAM administrador actual permite más acceso del debido. Bloquear su uso para automatización.
+- **RISK-001**: El usuario IAM administrador actual permite más acceso del debido. Su uso como origen en este PC fue autorizado; una sesión asumida de Alec limita las operaciones ordinarias del proceso, pero el administrador puede saltarse ese límite.
 - **RISK-002**: Fuentes ATS pueden cambiar sus esquemas o términos. Versionar fixtures y validar cada fuente antes de activarla.
 - **RISK-003**: La ausencia de datos de salario o elegibilidad puede reducir matches; se prefiere revisión a una inferencia falsa.
 - **ASSUMPTION-001**: `us-east-1` es solo región propuesta para síntesis local, no aprobación de residencia ni despliegue.

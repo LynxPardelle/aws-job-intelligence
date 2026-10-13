@@ -22,7 +22,7 @@ Fecha: 2026-10-13. Todas las acciones AWS fueron de solo lectura. No se cambiaro
 
 La versión binaria de Codex Desktop no pudo establecerse mediante el registro de aplicaciones; `Get-AppxPackage` no funciona en este entorno. El CLI sí está operativo. No se encontró un directorio local con automatizaciones configuradas bajo `.codex/automations`; esto no demuestra que no existan automatizaciones en otras superficies.
 
-Se instaló un entorno virtual **sólo local** con `requirements-dev.txt`: ReportLab 4.4.9, pypdf 6.20.1 y tzdata 2026.5. En Windows, `zoneinfo` requiere los datos IANA de `tzdata` para validar `America/Mexico_City`; una instalación limpia sin esa dependencia falló y se corrigió. El CDK CLI se usa desde `infra/node_modules`, no globalmente. Dependencias fijadas: CDK lib 2.273.0, CDK CLI 2.1139.0, constructs 10.8.1 y TypeScript 5.9.3.
+Se instaló un entorno virtual **sólo local** con `requirements-dev.txt`: ReportLab 4.4.9, pypdf 6.20.1 y tzdata 2026.5; el cliente local opcional añade Boto3 1.43.112 mediante `requirements-aws.txt`. En Windows, `zoneinfo` requiere los datos IANA de `tzdata` para validar `America/Mexico_City`; una instalación limpia sin esa dependencia falló y se corrigió. El CDK CLI se usa desde `infra/node_modules`, no globalmente. Dependencias fijadas: CDK lib 2.273.0, CDK CLI 2.1139.0, constructs 10.8.1 y TypeScript 5.9.3.
 
 `npm audit` detectó inicialmente una versión vulnerable de `brace-expansion` embebida en CDK lib 2.272.0; al actualizar a 2.273.0, `npm audit --audit-level=high` terminó con **0 vulnerabilidades**. `pip-audit -r requirements-dev.txt` detectó avisos en pypdf 6.10.0; la versión 6.20.1 terminó con **0 vulnerabilidades conocidas**. Para las consultas HTTPS se usó el almacén de certificados de Windows (`NODE_OPTIONS=--use-system-ca` y `truststore` en la invocación de auditoría Python), sin desactivar la validación TLS. Estos resultados son una revisión puntual al 2026-10-13, no una garantía futura.
 
@@ -34,7 +34,7 @@ Se instaló un entorno virtual **sólo local** con `requirements-dev.txt`: Repor
 - No se encontraron stacks CloudFormation, tablas DynamoDB, programaciones EventBridge Scheduler, funciones Lambda ni buckets S3 con prefijo `aji-` en las consultas realizadas. Tampoco recursos con etiqueta `Project=AWSJobIntelligence` en `us-east-1` ni presupuesto `aji-` visible.
 - Esta búsqueda usa prefijo/etiqueta y no constituye un inventario exhaustivo de la cuenta. No se inspeccionaron recursos de otras regiones.
 
-**Hallazgo crítico:** el perfil actual no satisface las credenciales temporales ni el principio de mínimo privilegio del plan. No se usará para despliegue o ejecuciones desatendidas. El cambio de IAM queda pendiente de aprobación.
+**Hallazgo de seguridad:** el perfil actual no satisface por sí solo la preferencia inicial por credenciales temporales ni el principio de mínimo privilegio del plan. **Actualización 2026-10-13:** el usuario autorizó expresamente usar este perfil administrador en esta computadora. Se conservará la clave sólo en el almacén local de AWS CLI y se propone asumir un rol de Alec para la tarea diaria. Los cambios de IAM, despliegue y gastos siguen requiriendo aprobación concreta. Véase `docs/architecture/adr-002-first-pc-admin.md`.
 
 ## Seguridad y Codex Remote
 

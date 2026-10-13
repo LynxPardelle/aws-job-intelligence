@@ -18,12 +18,17 @@ class SearchPolicy:
     salary_currency: str | None
     shortlist_threshold: int
     salary_interval: str = "year"
+    roles: tuple[str, ...] = ()
+    excluded_companies: tuple[str, ...] = ()
+    prepare_threshold: int | None = None
 
     def __post_init__(self) -> None:
         if not self.candidate_id or not 0 <= self.shortlist_threshold <= 100:
             raise ValueError("invalid search policy")
         if self.minimum_salary is not None and (self.minimum_salary < 0 or not self.salary_currency):
             raise ValueError("salary minimum requires currency")
+        if self.prepare_threshold is not None and not self.shortlist_threshold <= self.prepare_threshold <= 100:
+            raise ValueError("invalid preparation threshold")
 
 
 @dataclass(frozen=True)
@@ -66,6 +71,11 @@ def match_job(job: Job, policy: SearchPolicy, now: str) -> MatchResult:
         reasons.append("not_eligible_from_mexico")
     elif job.mexico_eligibility == "unknown":
         unknowns.append("mexico_eligibility")
+
+    if policy.roles and not any(_contains(job.title, role) for role in policy.roles):
+        reasons.append("incompatible_role")
+    if job.company.casefold() in {company.casefold() for company in policy.excluded_companies}:
+        reasons.append("excluded_company")
 
     modality_match = not policy.allowed_modalities or job.modality in policy.allowed_modalities
     if job.modality == "unknown" and policy.allowed_modalities:

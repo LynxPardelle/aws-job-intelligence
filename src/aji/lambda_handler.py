@@ -4,6 +4,7 @@ import json
 import os
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+from zoneinfo import ZoneInfo
 
 from .connectors import build_feed_url
 from .dedupe import deduplicate_jobs
@@ -12,8 +13,10 @@ from .transport import fetch_jobs
 
 
 def collect_once(sources: list[dict], now: str, *, fetcher, writer, max_sources: int) -> dict:
+    if not isinstance(sources, list) or any(not isinstance(item, dict) for item in sources):
+        raise ValueError("invalid source list")
     active = [item for item in sources if item.get("enabled") is True]
-    if max_sources < 1 or len(active) > max_sources:
+    if max_sources < 1 or not active or len(active) > max_sources:
         raise ValueError("source quota exceeded")
     for item in active:
         if not isinstance(item.get("company"), str) or not item["company"].strip():
@@ -23,19 +26,30 @@ def collect_once(sources: list[dict], now: str, *, fetcher, writer, max_sources:
     retrieved_at = utc_timestamp(now)
     if retrieved_at is None:
         raise ValueError("collection time required")
+    current = datetime.fromisoformat(retrieved_at.replace("Z", "+00:00"))
+    collection_day = current.astimezone(ZoneInfo("America/Mexico_City")).date().isoformat()
+    expiry = int((current + timedelta(days=30)).timestamp())
+    marker = {
+        "job_id": f"run#{collection_day}", "record_type": "collection_run",
+        "status": "STARTED", "run_id": retrieved_at,
+        "collection_day": collection_day, "expires_at": expiry,
+    }
+    writer(marker)
     all_jobs = []
     for item in active:
         all_jobs.extend(fetcher(item["source"], item["board"], item["company"], retrieved_at))
         if len(all_jobs) > 1000:
             raise ValueError("job quota exceeded")
     unique = deduplicate_jobs(all_jobs)
-    expiry = int((datetime.fromisoformat(retrieved_at.replace("Z", "+00:00")) + timedelta(days=30)).timestamp())
     for job in unique:
         item = job.to_dict()
         item["expires_at"] = expiry
+        item["record_type"] = "job"
+        item["collection_run_id"] = retrieved_at
         if len(json.dumps(item, ensure_ascii=False).encode("utf-8")) > 300_000:
             raise ValueError("job item exceeds size limit")
         writer(item)
+    writer({**marker, "status": "COMPLETE", "job_count": len(unique)})
     return {"status": "OK", "jobs_written": len(unique), "sources": len(active)}
 
 

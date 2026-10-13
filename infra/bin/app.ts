@@ -9,11 +9,10 @@ const alecPrincipalArn = app.node.tryGetContext('alecPrincipalArn') as string | 
 const hectorPrincipalArn = app.node.tryGetContext('hectorPrincipalArn') as string | undefined;
 const budgetEmail = app.node.tryGetContext('budgetEmail') as string | undefined;
 
-if (!account || !/^\d{12}$/.test(account) || !region || !alecPrincipalArn ||
-    !hectorPrincipalArn || !budgetEmail) {
-  throw new Error('synth requires account, region, alecPrincipalArn, hectorPrincipalArn and budgetEmail context');
+if (!account || !/^\d{12}$/.test(account) || !region || !alecPrincipalArn || !budgetEmail) {
+  throw new Error('synth requires account, region, alecPrincipalArn and budgetEmail context');
 }
-if (alecPrincipalArn === hectorPrincipalArn) {
+if (hectorPrincipalArn && alecPrincipalArn === hectorPrincipalArn) {
   throw new Error('candidate principals must be different');
 }
 
@@ -23,7 +22,9 @@ new CandidateStack(app, 'aji-alec-dev', {
   env, candidateId: 'alec', principalArn: alecPrincipalArn,
   publicJobsTable: shared.jobsTable,
 });
-new CandidateStack(app, 'aji-hector-dev', {
-  env, candidateId: 'hector', principalArn: hectorPrincipalArn,
-  publicJobsTable: shared.jobsTable,
-});
+if (hectorPrincipalArn) {
+  new CandidateStack(app, 'aji-hector-dev', {
+    env, candidateId: 'hector', principalArn: hectorPrincipalArn,
+    publicJobsTable: shared.jobsTable,
+  });
+}

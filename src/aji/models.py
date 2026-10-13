@@ -1,6 +1,6 @@
 """Versioned public job data. Candidate information does not belong here."""
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, fields
 from typing import Literal
 
 
@@ -37,3 +37,18 @@ class Job:
 
     def to_dict(self) -> dict:
         return asdict(self)
+
+
+def job_from_dict(item: dict) -> Job:
+    """Rebuild a public Job from a DynamoDB item without its index/TTL fields."""
+    if not isinstance(item, dict) or item.get("schema_version") != "1.0":
+        raise ValueError("unsupported public job")
+    data = {field.name: item[field.name] for field in fields(Job)}
+    raw_salary = data["salary"]
+    if raw_salary is not None:
+        data["salary"] = Salary(
+            currency=raw_salary["currency"], interval=raw_salary["interval"],
+            minimum=float(raw_salary["minimum"]) if raw_salary["minimum"] is not None else None,
+            maximum=float(raw_salary["maximum"]) if raw_salary["maximum"] is not None else None,
+        )
+    return Job(**data)

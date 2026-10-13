@@ -31,6 +31,12 @@ export class SharedStack extends Stack {
       timeToLiveAttribute: 'expires_at',
       removalPolicy: RemovalPolicy.RETAIN,
     });
+    this.jobsTable.addGlobalSecondaryIndex({
+      indexName: 'collection-run-index',
+      partitionKey: { name: 'collection_run_id', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'job_id', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
 
     const logGroup = new logs.LogGroup(this, 'CollectorLogs', {
       logGroupName: '/aws/lambda/aji-collector-dev',
