@@ -1,0 +1,69 @@
+import json
+import sys
+import tempfile
+import unittest
+from dataclasses import replace
+from pathlib import Path
+from pypdf import PdfReader
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from aji.application_package import prepare_application
+from aji.connectors import parse_feed
+from aji.matcher import SearchPolicy, match_job
+
+
+FIXTURES = Path(__file__).parent / "fixtures"
+
+
+def inputs():
+    feed = json.loads((FIXTURES / "ashby.json").read_text("utf-8"))
+    job = parse_feed("ashby", "acmeexample", "Acme Example", feed, "2026-10-13T14:00:00Z")[0]
+    job = replace(job, mexico_eligibility="eligible")
+    policy = SearchPolicy("fictional", ("python", "data"), ("senior",), ("remote",), 75000, "USD", 70)
+    match = match_job(job, policy, "2026-10-13T15:00:00Z")
+    profile = json.loads((FIXTURES / "verified_profile.json").read_text("utf-8"))
+    return job, match, profile
+
+
+class PackageTests(unittest.TestCase):
+    def test_dry_run_writes_only_verified_claims_and_no_submission_record(self):
+        job, match, profile = inputs()
+        with tempfile.TemporaryDirectory() as directory:
+            output = prepare_application(job, match, profile, Path(directory))
+            names = {path.name for path in output.iterdir()}
+            self.assertIn("resume-tailored.pdf", names)
+            self.assertIn("evidence-map.json", names)
+            self.assertNotIn("submission-record.json", names)
+            resume = (output / "resume-tailored.md").read_text("utf-8")
+            self.assertIn("Built Python data pipelines for internal analytics.", resume)
+            self.assertNotIn("Maintained Angular components", resume)
+            mapping = json.loads((output / "evidence-map.json").read_text("utf-8"))
+            self.assertEqual([entry["claim_id"] for entry in mapping["claims"]], ["claim-python-1"])
+            self.assertTrue((output / "resume-tailored.pdf").read_bytes().startswith(b"%PDF"))
+            pdf_text = "\n".join(page.extract_text() for page in PdfReader(output / "resume-tailored.pdf").pages)
+            self.assertIn("Built Python data pipelines for internal analytics.", pdf_text)
+
+    def test_unapproved_profile_or_unverified_claim_is_rejected(self):
+        job, match, profile = inputs()
+        with tempfile.TemporaryDirectory() as directory:
+            profile["approved_by_holder"] = False
+            with self.assertRaises(ValueError):
+                prepare_application(job, match, profile, Path(directory))
+            profile["approved_by_holder"] = True
+            profile["claims"][0]["evidence"]["reuse_approved"] = False
+            with self.assertRaises(ValueError):
+                prepare_application(job, match, profile, Path(directory))
+
+    def test_unknown_eligibility_never_produces_package(self):
+        job, _, profile = inputs()
+        job = replace(job, mexico_eligibility="unknown")
+        policy = SearchPolicy("fictional", ("python", "data"), ("senior",), ("remote",), 75000, "USD", 70)
+        match = match_job(job, policy, "2026-10-13T15:00:00Z")
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaises(ValueError):
+                prepare_application(job, match, profile, Path(directory))
+
+
+if __name__ == "__main__":
+    unittest.main()

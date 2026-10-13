@@ -1,0 +1,15 @@
+# Ejemplo sin preferencias personales. Copiar por candidato a una ruta privada.
+candidate_id: example
+roles: []
+technologies: []
+allowed_seniority: []
+allowed_modalities: []
+eligible_countries: [MX]
+minimum_salary: null
+salary_currency: null
+salary_interval: year
+excluded_companies: []
+shortlist_threshold: 70
+prepare_threshold: 85
+max_jobs_per_day: 10
+application_mode: PREPARE

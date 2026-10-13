@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "candidate_id": "fictional",
+  "display_name": "Jordan Example",
+  "approved_by_holder": true,
+  "validated_at": "2026-10-13",
+  "claims": [
+    {
+      "claim_id": "claim-python-1",
+      "text": "Built Python data pipelines for internal analytics.",
+      "keywords": ["python", "data"],
+      "evidence": {
+        "source_document": "fixture://fictional-resume",
+        "reference": "paragraph-1",
+        "verified_at": "2026-10-13",
+        "reuse_approved": true
+      }
+    },
+    {
+      "claim_id": "claim-angular-1",
+      "text": "Maintained Angular components for an example dashboard.",
+      "keywords": ["angular"],
+      "evidence": {
+        "source_document": "fixture://fictional-resume",
+        "reference": "paragraph-2",
+        "verified_at": "2026-10-13",
+        "reuse_approved": true
+      }
+    }
+  ]
+}

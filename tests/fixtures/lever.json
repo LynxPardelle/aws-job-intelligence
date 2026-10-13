@@ -1,0 +1,12 @@
+[
+  {
+    "id": "lv-1",
+    "text": "Backend Engineer",
+    "categories": {"location": "Mexico City", "level": "Mid"},
+    "descriptionPlain": "Build Node and AWS services.",
+    "hostedUrl": "https://jobs.lever.co/acmeexample/lv-1",
+    "applyUrl": "https://jobs.lever.co/acmeexample/lv-1/apply",
+    "workplaceType": "hybrid",
+    "salaryRange": {"currency": "USD", "interval": "year", "min": 90000, "max": 120000}
+  }
+]

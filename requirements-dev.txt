@@ -1,0 +1,4 @@
+reportlab==4.4.9
+pypdf==6.20.1
+tzdata==2026.5
+coverage==7.16.2

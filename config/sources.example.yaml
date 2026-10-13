@@ -1,0 +1,3 @@
+# Ejemplo sin fuentes reales. Copiar a sources.yaml (ignorado por Git) tras revisar términos.
+sources: []
+# Cada entrada futura: {source: greenhouse|lever|ashby, company: "...", board: "...", enabled: false}

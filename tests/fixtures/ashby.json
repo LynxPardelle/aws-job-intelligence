@@ -1,0 +1,21 @@
+{
+  "apiVersion": "1",
+  "jobs": [
+    {
+      "title": "Senior Data Engineer",
+      "location": "Mexico City",
+      "isListed": true,
+      "isRemote": true,
+      "workplaceType": "Remote",
+      "descriptionPlain": "Build Python data pipelines.",
+      "publishedAt": "2026-10-11T10:00:00+00:00",
+      "jobUrl": "https://jobs.ashbyhq.com/acmeexample/as-1",
+      "applyUrl": "https://jobs.ashbyhq.com/acmeexample/as-1/application",
+      "compensation": {
+        "summaryComponents": [
+          {"compensationType": "Salary", "interval": "1 YEAR", "currencyCode": "USD", "minValue": 80000, "maxValue": 100000}
+        ]
+      }
+    }
+  ]
+}

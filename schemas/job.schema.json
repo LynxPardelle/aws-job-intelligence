@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/aji/schemas/job.schema.json",
+  "title": "AWS Job Intelligence public job v1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "job_id", "source", "board", "external_id", "company", "title", "description",
+    "location", "modality", "mexico_eligibility", "seniority", "salary",
+    "source_url", "apply_url", "published_at", "updated_at", "status",
+    "feed_url", "retrieved_at", "schema_version"
+  ],
+  "properties": {
+    "job_id": {"type": "string", "minLength": 1},
+    "source": {"enum": ["greenhouse", "lever", "ashby"]},
+    "board": {"type": "string", "minLength": 1},
+    "external_id": {"type": "string", "minLength": 1},
+    "company": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "description": {"type": "string"},
+    "location": {"type": ["string", "null"]},
+    "modality": {"enum": ["remote", "hybrid", "onsite", "unknown"]},
+    "mexico_eligibility": {"enum": ["eligible", "ineligible", "unknown"]},
+    "seniority": {"type": ["string", "null"]},
+    "salary": {
+      "anyOf": [
+        {"type": "null"},
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["currency", "interval", "minimum", "maximum"],
+          "properties": {
+            "currency": {"type": "string", "minLength": 3, "maxLength": 3},
+            "interval": {"type": "string", "minLength": 1},
+            "minimum": {"type": ["number", "null"], "minimum": 0},
+            "maximum": {"type": ["number", "null"], "minimum": 0}
+          }
+        }
+      ]
+    },
+    "source_url": {"type": "string", "format": "uri", "pattern": "^https://"},
+    "apply_url": {"type": "string", "format": "uri", "pattern": "^https://"},
+    "published_at": {"type": ["string", "null"], "format": "date-time"},
+    "updated_at": {"type": ["string", "null"], "format": "date-time"},
+    "status": {"enum": ["open", "closed", "unknown"]},
+    "feed_url": {"type": "string", "format": "uri", "pattern": "^https://"},
+    "retrieved_at": {"type": "string", "format": "date-time"},
+    "schema_version": {"const": "1.0"}
+  }
+}
