@@ -29,6 +29,9 @@ Actualizado: 2026-10-14. Especificación principal: plan maestro v3 leído del D
 | 2026-10-14 | Publicador v1.1 en AWS | El diff mostró sólo assets de código; `cdk deploy aji-alec-dev --exclusively` terminó en `UPDATE_COMPLETE` y el diff posterior exclusivo de Alec mostró cero diferencias; shared, Scheduler e IAM no se actualizaron | `private/alec-authorized-diff.txt`, `private/alec-authorized-deploy.log` y `private/alec-post-deploy-diff.txt` ignorados; CloudFormation |
 | 2026-10-14 | Prueba integrada ficticia | Un lote v1.1 de una vacante inventada se publicó en S3 privado; vista previa y primer claim `READY`, segundo `ALREADY_PROCESSED`; lock DynamoDB presente y 0 postulaciones | `scripts/run-alec-pull.py`, S3/DynamoDB, `applications/alec/daily-summary.json` ignorado |
 | 2026-10-14 | Investigación de decisiones | Se documentaron opciones de fuentes, preferencias, elegibilidad, operación, costos, correo, CVs y consentimiento. Se distinguieron campos ya implementados de filtros aún ausentes; no se activó AWS | `docs/decisions/first-pc-approval-options.md`; documentación oficial de ATS, portales, Google, AWS y OpenAI |
+| 2026-10-14 | F2 y CVs de Alec | Se identificaron y leyeron los dos CVs distintos más recientes de Alec en su Drive; se compararon enfoques Full Stack y modernización AWS y se preparó un análisis privado de ajuste a vacantes. No se consultaron CVs de Héctor ni se creó perfil verificado | `private/alec/f2-cv-fit-review-2026-10-14.md` ignorado; enlaces de Drive sólo en privado |
+| 2026-10-14 | Boards candidatos F2 | Se comprobaron cuatro feeds Greenhouse con un GET acotado por board (6/57/14/16 anuncios), ofertas actuales y páginas corporativas. Caylent queda sólo para revisión manual por restricciones de automatización en sus condiciones | `docs/decisions/f2-public-board-candidates.md`; `src/aji/transport.py` |
+| 2026-10-14 | Arquitectura de correo | Se asignaron las alertas oficiales a Codex con conector Gmail por candidato, sin lector ni tokens en AWS. La herramienta Gmail no estuvo disponible en esta sesión; no se leyó buzón ni se programó tarea | `docs/architecture/adr-003-codex-gmail-alerts.md`, `codex/daily-run.md` |
 
 ## Pruebas y auditorías
 
@@ -44,17 +47,19 @@ Actualizado: 2026-10-14. Especificación principal: plan maestro v3 leído del D
 - Demo ficticia: PDF de una página, texto extraíble, render revisado visualmente; `submission-record.json` ausente. El resumen marca 0 postulaciones confirmadas.
 - `npm audit --audit-level=high`: **0 vulnerabilidades** con CA del sistema. `pip-audit` para `requirements-dev.txt` y el nuevo `requirements-aws.txt`: **0 vulnerabilidades conocidas**; TLS validado con el almacén de Windows.
 - Antes de subir este registro se revisaron 66 archivos seguidos y 6 commits por valores privados exactos, patrones de claves AWS y encabezados de claves privadas: **0 coincidencias**. `private/` y `applications/` siguen ignorados. `npm test` volvió a pasar **9 pruebas CDK** y `git diff --check` no encontró errores de formato.
+- Revisión F2: la búsqueda en Drive por nombre identificó dos CVs distintos más recientes de Alec (un PDF Full Stack de octubre y otro AWS de septiembre); el PDF Full Stack se comparó con su Google Doc. Una oferta de Ashby hallada en un índice antiguo mostró `Job not found` en la página actual y se descartó. Los cuatro GET acotados a Greenhouse devolvieron 6/57/14/16 anuncios sin activar Lambda ni Scheduler.
 
 ## Bloqueos que requieren decisión o participación humana
 
 | ID | Asunto | Impacto | Acción necesaria |
 | --- | --- | --- | --- |
 | B-02 | Segundo PC, titular de Héctor y su visibilidad en Codex Remote no verificados | Alcance de Héctor pospuesto por instrucción del usuario | Handoff posterior desde el repositorio privado, con acceso del titular y auditoría de su equipo; ver `docs/runbooks/second-pc-handoff.md` |
-| B-04 | CVs reales sin reconciliación ni aprobación de cada titular | No se preparan paquetes reales | Crear perfiles privados con evidencia y consentimiento de reutilización |
-| B-05 | Empresas, feeds, términos y políticas privadas aún sin validar | Collector permanece desactivado y sin fuentes reales | Curar catálogo y criterios separados por candidato |
+| B-04 | Los dos CVs recientes de Alec se revisaron, pero sus afirmaciones y preferencias siguen sin verificación/aprobación del titular | No se preparan paquetes reales | Reconciliar fechas, métricas y evidencia; aprobar reutilización por afirmación antes de crear `verified-profile.json` |
+| B-05 | Hay cuatro boards públicos candidatos, pero faltan selección del titular, condiciones por fuente y política privada aprobada. Caylent tiene restricción expresa sobre automatización del sitio | Collector permanece desactivado y sin fuentes reales | Elegir boards; mantener Caylent manual hasta aclarar permiso; revisar condiciones y probar criterios antes de activar |
 | B-06 | El objetivo AWS < USD 5/mes aún no está validado con volumen real ni cuotas restantes | La estimación Calculator de USD 0.69/mes es hipotética, no límite | Observar consumo real; mantener servicios desactivados hasta decisión posterior |
 | B-09 | El presupuesto ya existe, pero la asignación de costos y la entrega de avisos no se han observado con gasto real; los Scheduler no están etiquetados | El filtro por `Project` puede omitir cargos sin etiqueta y las alertas no son un tope | Observar Budgets y gasto general durante la operación autorizada; no afirmar cobertura completa hasta tener datos |
 | B-11 | El lock de `--claim` se toma antes de cualquier generación real de paquete y no hay recuperación de proceso | Una falla posterior impide reintentar el mismo lote durante el día | Empezar con vista previa; diseñar estado y reintento seguro antes de automatizar el claim |
+| B-12 | Gmail no está expuesto como herramienta en esta sesión | Codex no puede leer alertas aún | Conectar/verificar el conector de Gmail de Alec en una superficie compatible, con permisos mínimos; probar lectura acotada sin acceso al otro candidato |
 
 ## Trabajo técnico todavía pendiente
 
@@ -63,7 +68,7 @@ Actualizado: 2026-10-14. Especificación principal: plan maestro v3 leído del D
 - Generación automática de CVs reales desde el pull requiere perfil verificado y aprobado; el pull actual informa oportunidades y no prepara documentos reales.
 - Pruebas de permisos cruzados sobre recursos AWS reales, y activación controlada de Scheduler/collector después de aprobación. La plantilla actual deja ambos desactivados.
 - Perfiles reales aprobados, retención/borrado por titular, operación en ambos PCs, comprobación de Remote y métricas de costos observados.
-- Integraciones Gmail/portales y cualquier envío pertenecen a fases posteriores con consentimiento y revisión específica.
+- Gmail queda diseñado como entrada local de Codex, sin tokens/cuerpos en AWS; su conexión, prueba y automatización siguen pendientes. Los portales y cualquier envío pertenecen a fases posteriores con revisión específica.
 
 ## Decisiones
 
@@ -89,7 +94,9 @@ Actualizado: 2026-10-14. Especificación principal: plan maestro v3 leído del D
 | D-18 | 2026-10-14 | Subir `main` a `LynxPardelle/aws-job-intelligence` como repositorio privado | El usuario autorizó subir el código; `private/` y `applications/` quedan excluidos de Git |
 | D-19 | 2026-10-14 | Actualizar sólo `aji-alec-dev` al publicador v1.1 y probar un lote ficticio con lock | Autorización del usuario para GitHub/AWS; diff de código aislado y preflight sin lote previo; Scheduler y flags permanecen apagados |
 | D-20 | 2026-10-14 | Presentar decisiones por etapas y no inferir elegibilidad ni preferencias del candidato | Los feeds actuales dejan elegibilidad mexicana como `unknown`; el umbral de preparación no rige CVs y el lock requiere recuperación antes de automatizar procesamiento real |
+| D-21 | 2026-10-14 | Aplicar F2 a los dos CVs distintos más recientes de Alec y proponer boards/puestos sin aprobar automáticamente preferencias | Instrucción directa del usuario; análisis personal en `private/` y catálogo público sin perfil en Git |
+| D-22 | 2026-10-14 | Procesar alertas de Gmail en Codex con conector por candidato, sin lector de buzón ni tokens en AWS | Instrucción directa del usuario y ADR-003; conector aún no disponible/validado en esta sesión |
 
 ## Próxima revisión
 
-Revisar la [guía de decisiones del primer equipo](decisions/first-pc-approval-options.md) y responder primero sobre empresas/fuentes y puestos de Alec. Con esas decisiones investigaré boards concretos y prepararé la política privada, las pruebas y el diff/costo antes de activar la operación diaria. El segundo equipo sigue a la espera del handoff; cualquier postulación real requiere autorización específica.
+Revisar los [boards candidatos F2](decisions/f2-public-board-candidates.md) y responder cuáles puestos/empresas interesan, si se acepta contrato independiente y/o turnos, y los criterios personales aún faltantes (salario, modalidad, autorización laboral, exclusiones y cuota). Después se podrá preparar la política privada, resolver condiciones de fuente, probar localmente y presentar un diff/costo concreto antes de activar la operación diaria. Conectar el Gmail de Alec en Codex será una decisión separada; el segundo equipo sigue a la espera del handoff y cualquier postulación real requiere autorización específica.
