@@ -96,12 +96,14 @@ El pull con Boto3 y lock condicional está codificado para Alec, pero no se ejec
 |------|-------------|-----------|------|
 | TASK-015 | Confirmar cuenta, región/residencia, fuentes, políticas y consentimiento por candidato; auditar segundo PC y Codex Remote con su titular. | | |
 | TASK-016 | Diseñar roles temporales de mínimo privilegio y validar pruebas negativas de acceso cruzado; pedir aprobación antes de crear o modificar IAM. | | |
-| TASK-017 | Completar AWS Pricing Calculator, límites y runbook de apagado; pedir aprobación para desplegar nombres de stack y región exactos. | | |
+| TASK-017 | Completar AWS Pricing Calculator, límites y runbook de apagado; pedir aprobación para desplegar nombres de stack y región exactos. | ✅ | 2026-10-13 |
 | TASK-018 | Separar aprobación adicional por cualquier postulación real o modo `AUTO_SUBMIT`; exigir evidencia de consentimiento por portal y candidato. | | |
 | TASK-023 | Confirmar `us-east-1` y correo privado, guardar Calculator y reemplazar presupuesto general por diseño filtrado; probar CDK sin presupuesto inicial y con filtro posterior. | ✅ | 2026-10-13 |
-| TASK-024 | Con aprobación expresa, revisar cambios y desplegar sólo `aji-shared-dev` + `aji-alec-dev` apagados en `us-east-1`, sin presupuesto propio inicial. | | |
+| TASK-024 | Con aprobación expresa, revisar cambios y desplegar sólo `aji-shared-dev` + `aji-alec-dev` apagados en `us-east-1`, sin presupuesto propio inicial. | ✅ | 2026-10-13 |
 | TASK-025 | Después de que aparezca `Project` en Billing, obtener aprobación para activar esa etiqueta de asignación de costos y verificar su cobertura. | | |
 | TASK-026 | Con aprobación expresa, actualizar shared para crear `aji-project-dev` filtrado, con avisos reales a USD 3/5 al correo privado confirmado. | | |
+| TASK-027 | Verificar stacks reales, estado apagado, privacidad, tags, límites, outputs privados y permisos permitidos/denegados con el rol asumido de Alec. | ✅ | 2026-10-13 |
+| TASK-028 | Mostrar error estructurado y no filtrar identificadores cuando la vista previa del pull no encuentre lote o carezca de acceso; probarlo localmente y contra AWS. | ✅ | 2026-10-13 |
 
 ## 3. Alternatives
 

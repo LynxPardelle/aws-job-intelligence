@@ -18,6 +18,24 @@ from aji.aws_batch_io import CandidateBatchStore  # noqa: E402
 from aji.daily_pull import inspect_daily_batch  # noqa: E402
 
 
+def read_batch_summary(store: CandidateBatchStore, now: str, claim: bool) -> tuple[dict, int]:
+    try:
+        return inspect_daily_batch(store, now, acquire_lock=claim), 0
+    except Exception as exc:
+        code = getattr(exc, "response", {}).get("Error", {}).get("Code")
+        if code in {"AccessDenied", "NoSuchKey", "404"}:
+            error_code = "BATCH_UNAVAILABLE_OR_DENIED"
+        elif isinstance(exc, ValueError):
+            error_code = "BATCH_INVALID_OR_STALE"
+        else:
+            raise
+        return {
+            "status": "ERROR", "candidate_id": "alec", "error_code": error_code,
+            "jobs_found": 0, "shortlisted": 0, "needs_review": 0,
+            "cvs_prepared": 0, "confirmed_applications": 0, "opportunities": [],
+        }, 2
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Read today's Alec batch using an assumed role")
     parser.add_argument("--claim", action="store_true", help="Acquire the daily DynamoDB lock")
@@ -60,8 +78,9 @@ def main() -> int:
         "alec", bucket, candidate.client("s3", config=limits),
         candidate.resource("dynamodb", config=limits).Table("aji-alec-state-dev"),
     )
-    summary = inspect_daily_batch(store, datetime.now(timezone.utc).isoformat(),
-                                  acquire_lock=args.claim)
+    summary, exit_code = read_batch_summary(
+        store, datetime.now(timezone.utc).isoformat(), args.claim,
+    )
     if args.claim and summary["status"] == "READY":
         destination = ROOT / "applications" / "alec" / "daily-summary.json"
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -69,7 +88,7 @@ def main() -> int:
         temporary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
         temporary_path.replace(destination)
     print(json.dumps(summary, ensure_ascii=False, indent=2))
-    return 0
+    return exit_code
 
 
 if __name__ == "__main__":

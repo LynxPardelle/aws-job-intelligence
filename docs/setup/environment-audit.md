@@ -1,6 +1,6 @@
 # Auditoría de entorno — Fase 0
 
-Fecha: 2026-10-13. Todas las acciones AWS fueron de solo lectura. No se cambiaron recursos ni configuración remota.
+Fecha: 2026-10-13. Esta es la instantánea de Fase 0: todas sus acciones AWS fueron de solo lectura y no cambiaron recursos ni configuración remota. El [registro de progreso](../progress.md) contiene el despliegue posterior aprobado de shared+Alec.
 
 ## Especificación y repositorio
 

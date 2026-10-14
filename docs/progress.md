@@ -1,6 +1,6 @@
 # Registro de avance
 
-Actualizado: 2026-10-13. Especificación principal: plan maestro v3 leído del Drive del titular, copia privada en `private/specification/` excluida de Git. Este archivo resume el estado para revisión desde Codex Remote. **No se desplegó AWS, no se modificó IAM, no se activó ninguna programación y no se envió ninguna postulación.** El usuario autorizó utilizar el perfil administrador existente de este PC y pospuso el segundo equipo.
+Actualizado: 2026-10-13. Especificación principal: plan maestro v3 leído del Drive del titular, copia privada en `private/specification/` excluida de Git. Este archivo resume el estado para revisión desde Codex Remote. **El usuario aprobó y se desplegaron sólo `aji-shared-dev` y `aji-alec-dev` en `us-east-1`. Ambos Scheduler siguen desactivados, ambas funciones tienen flag de ejecución `false`, no se creó el presupuesto del proyecto ni se envió ninguna postulación.** El segundo equipo permanece pospuesto.
 
 ## Avances verificables
 
@@ -17,15 +17,20 @@ Actualizado: 2026-10-13. Especificación principal: plan maestro v3 leído del D
 | 2026-10-13 | Confirmaciones | “CS” era una transcripción errónea de AWS; usuario confirmó `us-east-1` y el correo de alertas, guardado sólo en archivo privado ignorado | `private/local-aws.json`, `docs/deployment-review.md` |
 | 2026-10-13 | Presupuestos existentes | Siete presupuestos visibles; los dos generales ya superan USD 5 de gasto real mensual. Se descartó el aviso nuevo de cuenta completa a USD 3/5 | Consulta AWS Budgets de solo lectura; `docs/costs/estimate.md` |
 | 2026-10-13 | Calculator y CDK | Estimación pública de USD 0.69/mes en `us-east-1`; presupuesto posterior filtrado por `Project`, omitido en primera síntesis. `CDKToolkit` existente v31 | [Calculator](https://calculator.aws/#/estimate?id=7cb2aa5f807fc711290c42c815d33de5ed9e11b8), `infra/`, `docs/deployment-review.md` |
+| 2026-10-13 | Primer despliegue aprobado | Preflight de identidad y `cdk diff --no-change-set` comparados con la propuesta; dos stacks terminan `CREATE_COMPLETE`. Outputs del rol y bucket guardados sólo en `private/local-aws.json` | CloudFormation y `private/cdk-outputs.json` ignorado; `docs/deployment-review.md` |
+| 2026-10-13 | Verificación AWS | Dos Scheduler `DISABLED`, flags Lambda `false`, tablas `ACTIVE` on-demand, bucket privado cifrado, etiquetas `Project` en tablas, bucket, Lambdas, logs, alarmas y rol de Alec; logs 7 días, concurrencia 1 y presupuesto del proyecto ausente. Las plantillas de Scheduler no incluyen etiqueta | Consultas AWS de solo lectura y plantillas; `docs/deployment-review.md` |
+| 2026-10-13 | Rol y pull de Alec | STS asumió `aji-alec-access-dev`; `GetItem` público y privado permitido, `Scan` privado y `ListBucket` denegados. Sin lote del día, la vista previa devuelve error JSON seguro y código distinto de cero; no se adquirió lock | `scripts/run-alec-pull.py`, `tests/test_run_alec_pull.py` |
+| 2026-10-13 | Siguiente presupuesto preparado | `cdk diff --no-change-set` con el correo privado muestra únicamente un futuro recurso `AWS::Budgets::Budget` filtrado por `user:Project$AWSJobIntelligence`; no se aplicó | `private/budget-diff.txt` ignorado, `docs/costs/estimate.md` |
 
 ## Pruebas y auditorías
 
-- `python -m unittest discover -s tests -p "test_*.py" -q` desde `.venv`: **51 pruebas aprobadas**; sólo fixtures, clientes falsos y archivos temporales.
+- `python -m unittest discover -s tests -p "test_*.py" -q` desde `.venv`: **53 pruebas aprobadas**; la mayoría usan fixtures y clientes falsos. Las dos nuevas pruebas verifican que el pull informa fallos de lote sin filtrar detalles AWS.
 - `coverage run --source=src/aji -m unittest discover -s tests -p "test_*.py"`: **89% de cobertura de líneas** (633/710); la cobertura mide código local, no permisos ni comportamiento real de AWS.
 - `npm test` en `infra/`: **9 pruebas CDK aprobadas**, entre ellas presupuesto filtrado y primera síntesis sin presupuesto, identidad separada, roles limitados, cifrado, horarios desactivados y ausencia de NAT/EC2/RDS/ECS/EKS/API Gateway/Bedrock. Se observó el fallo esperado antes de corregir cada comportamiento de presupuesto.
 - `npm run synth ... --quiet` con cuenta/principal/correo ficticios: **2 stacks sintetizados** para el primer PC (shared+Alec), con roles, bucket, tablas, índice, Lambdas y alarmas. Sin despliegue.
 - Síntesis local adicional con el contexto real privado de este PC y **sin** `budgetEmail`: dos stacks, cero presupuestos, dos Scheduler `DISABLED` y ambas variables de habilitación en `false`. Los identificadores privados no se registraron en Git.
-- `scripts/check-aws-local.ps1`: pasó con perfil `default`, cuenta terminada en `4577` y `us-east-1`; configuración con identificadores en `private/local-aws.json`, ignorada por Git.
+- `scripts/check-aws-local.ps1`: pasó con perfil `default`, cuenta terminada en `4577` y `us-east-1`; configuración con identificadores y outputs en `private/local-aws.json`, ignorada por Git.
+- Integración AWS autorizada: ambos stacks `CREATE_COMPLETE`; lectura permitida y operaciones no autorizadas denegadas desde la sesión asumida de Alec. No se escribieron datos de prueba, se invocaron Lambdas ni se activaron programaciones.
 - Demo ficticia: PDF de una página, texto extraíble, render revisado visualmente; `submission-record.json` ausente. El resumen marca 0 postulaciones confirmadas.
 - `npm audit --audit-level=high`: **0 vulnerabilidades** con CA del sistema. `pip-audit` para `requirements-dev.txt` y el nuevo `requirements-aws.txt`: **0 vulnerabilidades conocidas**; TLS validado con el almacén de Windows.
 
@@ -36,12 +41,12 @@ Actualizado: 2026-10-13. Especificación principal: plan maestro v3 leído del D
 | B-02 | Segundo PC, titular de Héctor y su visibilidad en Codex Remote no verificados | Alcance de Héctor pospuesto por instrucción del usuario | Handoff posterior, tras terminar AWS y este PC; ver `docs/runbooks/second-pc-handoff.md` |
 | B-04 | CVs reales sin reconciliación ni aprobación de cada titular | No se preparan paquetes reales | Crear perfiles privados con evidencia y consentimiento de reutilización |
 | B-05 | Empresas, feeds, términos y políticas privadas aún sin validar | Collector permanece desactivado y sin fuentes reales | Curar catálogo y criterios separados por candidato |
-| B-06 | El objetivo AWS < USD 5/mes aún no está validado con volumen real ni cuotas restantes | La estimación Calculator de USD 0.69/mes es hipotética, no límite | Observar consumo tras despliegue aprobado y mantener servicios desactivados hasta decisión posterior |
-| B-08 | `Project` aún no está activada como etiqueta de asignación de costos | El presupuesto filtrado no tendría cobertura fiable en el primer despliegue | Tras crear recursos etiquetados con aprobación, solicitar aprobación para activar la etiqueta, verificarla y después añadir el presupuesto USD 3/5 |
+| B-06 | El objetivo AWS < USD 5/mes aún no está validado con volumen real ni cuotas restantes | La estimación Calculator de USD 0.69/mes es hipotética, no límite | Observar consumo real; mantener servicios desactivados hasta decisión posterior |
+| B-08 | La mayoría de recursos tienen `Project`, pero la clave aún no está activada como etiqueta de asignación de costos; las plantillas de Scheduler no incluyen etiqueta | Todavía no existe presupuesto específico ni alerta USD 3/5; el filtro podría omitir cargos sin etiqueta | Esperar a que la clave aparezca en Billing; solicitar aprobación para activarla, verificar cobertura, vigilar cargos generales y luego crear el presupuesto filtrado |
 
 ## Trabajo técnico todavía pendiente
 
-- Los componentes de publicador, pull y lock persistente están implementados y probados con clientes falsos; falta validación contra AWS después de aprobar despliegue, rol, bucket y política privada real. El script de Alec exige los outputs de CloudFormation en `private/local-aws.json`.
+- El rol de Alec y las lecturas permitidas/denegadas se probaron contra AWS. Faltan publicación de un lote aprobado, validación del lock persistente y prueba completa del pull; las fuentes y la política privada real siguen sin cargarse. No se añadió un lote ficticio al bucket real.
 - Generación automática de CVs reales desde el pull requiere perfil verificado y aprobado; el pull actual informa oportunidades y no prepara documentos reales.
 - Pruebas de permisos cruzados sobre recursos AWS reales, y activación controlada de Scheduler/collector después de aprobación. La plantilla actual deja ambos desactivados.
 - Perfiles reales aprobados, retención/borrado por titular, operación en ambos PCs, comprobación de Remote y métricas de costos observados.
@@ -64,7 +69,9 @@ Actualizado: 2026-10-13. Especificación principal: plan maestro v3 leído del D
 | D-11 | 2026-10-13 | Rechazar políticas JSON con filtros desconocidos o modo de envío distinto de PREPARE | Evita ignorar preferencias o habilitar un envío por configuración |
 | D-12 | 2026-10-13 | Presupuesto `aji-project-dev` filtrado por `user:Project$AWSJobIntelligence`, sólo después de activar la etiqueta; primer despliegue sin ese presupuesto | El gasto de cuenta general ya supera USD 5 y haría inútiles los avisos a USD 3/5; activar la etiqueta requiere recursos y aprobación |
 | D-13 | 2026-10-13 | Región `us-east-1` y correo de alertas confirmados; “CS” interpretado como AWS | Instrucción directa del usuario. El correo queda fuera de Git |
+| D-14 | 2026-10-13 | Primer despliegue shared+Alec aprobado y ejecutado, con servicios apagados y sin presupuesto específico | Aprobación expresa del usuario al alcance de `docs/deployment-review.md`; validación posterior en AWS |
+| D-15 | 2026-10-13 | Si falta el lote, el pull devuelve error JSON genérico y código distinto de cero, sin ampliar `ListBucket` | S3 puede responder `AccessDenied` si el objeto falta y el rol no puede listar; no confundirlo con éxito ni exponer identificadores |
 
 ## Próxima revisión
 
-Revisar este registro y la [propuesta de primer despliegue](deployment-review.md). La siguiente aprobación solicitada será para crear **sólo** shared+Alec apagados en `us-east-1`, sin presupuesto específico mientras se activa la etiqueta de costos; ninguna aprobación de despliegue o postulación se presume a partir de la confirmación de región y correo.
+Revisar este registro y el [resultado del primer despliegue](deployment-review.md). El próximo cambio AWS pendiente es activar `Project` como etiqueta de asignación de costos cuando Billing la muestre y, después de verificarla, crear el presupuesto filtrado con alertas; ambos requieren aprobación expresa antes de ejecutarse. La confirmación del primer despliegue no autoriza activar Scheduler, fuentes, automatizaciones, el segundo equipo ni postulaciones.
