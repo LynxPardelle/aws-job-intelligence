@@ -28,6 +28,7 @@ Actualizado: 2026-10-14. Especificación principal: plan maestro v3 leído del D
 | 2026-10-14 | GitHub privado | Se creó `LynxPardelle/aws-job-intelligence`, visibilidad `PRIVATE`, rama `main` subida; `private/` y `applications/` permanecen ignorados | GitHub CLI, `git remote -v`, `.gitignore` |
 | 2026-10-14 | Publicador v1.1 en AWS | El diff mostró sólo assets de código; `cdk deploy aji-alec-dev --exclusively` terminó en `UPDATE_COMPLETE` y el diff posterior exclusivo de Alec mostró cero diferencias; shared, Scheduler e IAM no se actualizaron | `private/alec-authorized-diff.txt`, `private/alec-authorized-deploy.log` y `private/alec-post-deploy-diff.txt` ignorados; CloudFormation |
 | 2026-10-14 | Prueba integrada ficticia | Un lote v1.1 de una vacante inventada se publicó en S3 privado; vista previa y primer claim `READY`, segundo `ALREADY_PROCESSED`; lock DynamoDB presente y 0 postulaciones | `scripts/run-alec-pull.py`, S3/DynamoDB, `applications/alec/daily-summary.json` ignorado |
+| 2026-10-14 | Investigación de decisiones | Se documentaron opciones de fuentes, preferencias, elegibilidad, operación, costos, correo, CVs y consentimiento. Se distinguieron campos ya implementados de filtros aún ausentes; no se activó AWS | `docs/decisions/first-pc-approval-options.md`; documentación oficial de ATS, portales, Google, AWS y OpenAI |
 
 ## Pruebas y auditorías
 
@@ -53,6 +54,7 @@ Actualizado: 2026-10-14. Especificación principal: plan maestro v3 leído del D
 | B-05 | Empresas, feeds, términos y políticas privadas aún sin validar | Collector permanece desactivado y sin fuentes reales | Curar catálogo y criterios separados por candidato |
 | B-06 | El objetivo AWS < USD 5/mes aún no está validado con volumen real ni cuotas restantes | La estimación Calculator de USD 0.69/mes es hipotética, no límite | Observar consumo real; mantener servicios desactivados hasta decisión posterior |
 | B-09 | El presupuesto ya existe, pero la asignación de costos y la entrega de avisos no se han observado con gasto real; los Scheduler no están etiquetados | El filtro por `Project` puede omitir cargos sin etiqueta y las alertas no son un tope | Observar Budgets y gasto general durante la operación autorizada; no afirmar cobertura completa hasta tener datos |
+| B-11 | El lock de `--claim` se toma antes de cualquier generación real de paquete y no hay recuperación de proceso | Una falla posterior impide reintentar el mismo lote durante el día | Empezar con vista previa; diseñar estado y reintento seguro antes de automatizar el claim |
 
 ## Trabajo técnico todavía pendiente
 
@@ -86,7 +88,8 @@ Actualizado: 2026-10-14. Especificación principal: plan maestro v3 leído del D
 | D-17 | 2026-10-14 | Elevar el contrato privado del lote a v1.1 para comprobar también `matches.json` y limitar lecturas S3; mantener AWS apagado hasta publicar el código | La versión v1.0 sólo verificaba vacantes y aceptaba una puntuación alterada. Se probó localmente antes del despliegue registrado en D-19 |
 | D-18 | 2026-10-14 | Subir `main` a `LynxPardelle/aws-job-intelligence` como repositorio privado | El usuario autorizó subir el código; `private/` y `applications/` quedan excluidos de Git |
 | D-19 | 2026-10-14 | Actualizar sólo `aji-alec-dev` al publicador v1.1 y probar un lote ficticio con lock | Autorización del usuario para GitHub/AWS; diff de código aislado y preflight sin lote previo; Scheduler y flags permanecen apagados |
+| D-20 | 2026-10-14 | Presentar decisiones por etapas y no inferir elegibilidad ni preferencias del candidato | Los feeds actuales dejan elegibilidad mexicana como `unknown`; el umbral de preparación no rige CVs y el lock requiere recuperación antes de automatizar procesamiento real |
 
 ## Próxima revisión
 
-Revisar este registro y la [revisión de activación del primer equipo](activation-review.md). Para preparar la operación diaria faltan el catálogo de fuentes permitido y la política de búsqueda aprobada por Alec; después se presentará el diff y el costo de activar collector, publicador y automatización de las 09:00. El segundo equipo sigue a la espera del handoff; cualquier postulación real requiere autorización específica.
+Revisar la [guía de decisiones del primer equipo](decisions/first-pc-approval-options.md) y responder primero sobre empresas/fuentes y puestos de Alec. Con esas decisiones investigaré boards concretos y prepararé la política privada, las pruebas y el diff/costo antes de activar la operación diaria. El segundo equipo sigue a la espera del handoff; cualquier postulación real requiere autorización específica.

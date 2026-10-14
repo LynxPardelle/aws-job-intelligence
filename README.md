@@ -6,6 +6,8 @@ Prototipo local de descubrimiento de vacantes y preparación controlada de candi
 
 Fase 0 auditada y prototipo local de Fases 1–3 probado con datos inventados. El repositorio está en [GitHub privado](https://github.com/LynxPardelle/aws-job-intelligence). Con aprobación expresa se desplegaron `aji-shared-dev` y `aji-alec-dev` en `us-east-1`, se activó `Project` para asignación de costos y se creó el presupuesto filtrado `aji-project-dev` de USD 5/mes con avisos a USD 3/5. El publicador de Alec ya tiene el contrato de lote v1.1. Una prueba AWS con una vacante ficticia validó lectura, checksum y lock diario mediante el rol de Alec. Ambos Scheduler están `DISABLED` y las Lambdas tienen sus flags de ejecución en `false`; el segundo equipo queda pendiente. **No se han enviado postulaciones.** Consultar [progreso](docs/progress.md), [revisión de activación](docs/activation-review.md), [resultado del despliegue](docs/deployment-review.md), [auditoría](docs/setup/environment-audit.md), [plan](plan/feature-local-mvp-1.md) y [costos](docs/costs/estimate.md).
 
+Para definir fuentes y preferencias sin exponer datos privados, usar la [guía de decisiones del primer equipo](docs/decisions/first-pc-approval-options.md). Presenta opciones por códigos y señala qué filtros funcionan hoy y cuáles requieren desarrollo adicional.
+
 ## Estructura
 
 - `src/aji/`: contratos, adaptadores ATS, normalización, deduplicación, scoring, publicador privado, pull de lotes y paquete de revisión.
