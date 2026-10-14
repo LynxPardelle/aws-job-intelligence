@@ -81,12 +81,12 @@ La síntesis CDK es un **esqueleto de desarrollo**: ambos Scheduler y las Lambda
 | TASK-013 | Crear `codex/daily-run.md` y simulador con perfiles ficticios; impedir preparación sin `verified-profile.json` aprobado. | ✅ | 2026-10-13 |
 | TASK-014 | Probar E2E local con lote ficticio que genere análisis y resumen sin postulación, registrar evidencia en `docs/progress.md`. | ✅ | 2026-10-13 |
 
-El pull con Boto3 y lock condicional está codificado para Alec. Los recursos AWS existen y se probó la vista previa sin lote del día con el rol asumido; el lock persistente y la corrida completa siguen sin probarse contra AWS. La simulación no completa la Fase 3 operativa ni valida Codex Remote.
+El pull con Boto3 y lock condicional está codificado para Alec. Los recursos AWS existen y se probó un lote ficticio del día con el rol asumido: vista previa y primer claim `READY`, segundo claim `ALREADY_PROCESSED`. La simulación no completa la Fase 3 operativa con fuentes reales ni valida Codex Remote.
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
 | TASK-021 | Preparar vista previa local de lote, resumen de oportunidades y script para asumir rol de Alec desde el perfil administrador, con `--claim` explícito para el lock. | ✅ | 2026-10-13 |
-| TASK-022 | Tras despliegue aprobado: registrar outputs de rol/bucket en `private/local-aws.json`, probar vista previa, lock, permisos negativos y visibilidad Remote. Outputs, vista previa y permisos probados; lock y Remote pendientes. | | |
+| TASK-022 | Tras despliegue aprobado: registrar outputs de rol/bucket en `private/local-aws.json`, probar vista previa, lock, permisos negativos y visibilidad Remote. Outputs, vista previa, lock y permisos probados; Remote pendiente. | | |
 
 ### Implementation Phase 4
 
@@ -105,6 +105,11 @@ El pull con Boto3 y lock condicional está codificado para Alec. Los recursos AW
 | TASK-027 | Verificar stacks reales, estado apagado, privacidad, tags, límites, outputs privados y permisos permitidos/denegados con el rol asumido de Alec. | ✅ | 2026-10-13 |
 | TASK-028 | Mostrar error estructurado y no filtrar identificadores cuando la vista previa del pull no encuentre lote o carezca de acceso; probarlo localmente y contra AWS. | ✅ | 2026-10-13 |
 | TASK-029 | Endurecer el contrato de lote v1.1 con checksum de scoring, topes de lectura privada y errores AWS seguros; probar localmente y preparar diff de código sin desplegar. | ✅ | 2026-10-14 |
+| TASK-030 | Publicar `main` en un repositorio privado de GitHub y verificar que `private/` y `applications/` siguen fuera de Git. | ✅ | 2026-10-14 |
+| TASK-031 | Con autorización, desplegar sólo el código del publicador de `aji-alec-dev`; volver a comprobar stacks, Scheduler y flags. | ✅ | 2026-10-14 |
+| TASK-032 | Con autorización, publicar un lote AWS ficticio sin sobrescribir datos previos; leerlo y adquirir el lock con el rol de Alec. | ✅ | 2026-10-14 |
+| TASK-033 | Recibir fuentes ATS permitidas y política de Alec aprobada; preparar diff, estimación y revisión de activación diaria de este PC. | | |
+| TASK-034 | Verificar que la automatización nativa de Codex Desktop genera un resumen visible en Remote después de aprobar su operación diaria. | | |
 
 ## 3. Alternatives
 

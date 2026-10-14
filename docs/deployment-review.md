@@ -44,4 +44,10 @@ Pasaron 53 pruebas Python y 9 pruebas CDK, síntesis local de dos y tres stacks 
 - Verificar cobertura del presupuesto con gasto real y revisar también costos generales porque los Scheduler carecen de etiqueta y el filtro puede omitir cargos sin `Project`.
 - Solicitar autorización separada para activar fuentes, collector, publicador y automatización nativa de las 09:00. Solicitar otra autorización específica para cualquier postulación real. El stack y equipo de Héctor esperan el handoff posterior.
 
+## Tercera actualización: código v1.1 y prueba ficticia
+
+- El 2026-10-14 el usuario autorizó subir el repositorio y avanzar con los cambios AWS necesarios. El preflight de identidad pasó. `cdk diff --no-change-set` mostró sólo cambios del asset `Code` de Collector y Publisher; `cdk deploy aji-alec-dev --exclusively` actualizó únicamente Alec. CloudFormation confirmó `aji-alec-dev` `UPDATE_COMPLETE` y shared `UPDATE_COMPLETE`; ambos Scheduler permanecen `DISABLED` y los flags Lambda en `false`.
+- Antes de la prueba se confirmó que no había lote ni lock del día. Se publicó una vacante inventada del fixture local, con manifiesto v1.1, en el bucket privado de Alec. El rol asumido leyó el lote: vista previa `READY`, primer claim `READY`, segundo claim `ALREADY_PROCESSED`. Los tres objetos S3 muestran cifrado AES256; la regla `expire-batches` caduca los lotes a 30 días; el lock está presente en DynamoDB con TTL. El resumen quedó en `applications/alec/`, fuera de Git, y marcó 0 CVs y 0 postulaciones.
+- Esta prueba no activó las Lambdas, no consultó feeds reales ni comprobó todavía cobertura de gasto/entrega de avisos de presupuesto. La activación diaria requiere fuentes y política reales revisadas por Alec.
+
 El [runbook](runbooks/operations.md) contiene el apagado operativo. El [registro de progreso](progress.md) contiene los bloqueos vigentes y el handoff posterior al segundo equipo.
