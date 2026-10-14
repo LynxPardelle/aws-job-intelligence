@@ -27,7 +27,7 @@ Implementar y comprobar localmente la Fase 1 y la síntesis local de Fase 2 del 
 - **SEC-003**: Fijar `AUTO_SUBMIT` desactivado y no implementar envío real en este paquete.
 - **CON-001**: Toda integración externa se prueba con fixtures; los tests no necesitan AWS, Drive ni portales.
 - **CON-002**: La cuenta AWS detectada tiene un usuario administrador con clave permanente. El usuario autorizó usar el perfil `default` en este PC el 2026-10-13; el riesgo y la excepción están en ADR-002. Para la futura tarea de Alec se propone un rol asumido.
-- **CON-003**: El objetivo menor de USD 5/mes requiere verificación final en AWS Pricing Calculator antes del despliegue.
+- **CON-003**: El objetivo menor de USD 5/mes tiene un escenario revisable en AWS Pricing Calculator (USD 0.69/mes en `us-east-1`), pero requiere observación de volumen y gasto reales. La cuenta ya supera USD 5 por otros proyectos.
 - **PAT-001**: Pruebas de comportamiento antes del código de producción y verificación de fallo esperado, luego paso.
 
 ## 2. Implementation Steps
@@ -98,6 +98,10 @@ El pull con Boto3 y lock condicional está codificado para Alec, pero no se ejec
 | TASK-016 | Diseñar roles temporales de mínimo privilegio y validar pruebas negativas de acceso cruzado; pedir aprobación antes de crear o modificar IAM. | | |
 | TASK-017 | Completar AWS Pricing Calculator, límites y runbook de apagado; pedir aprobación para desplegar nombres de stack y región exactos. | | |
 | TASK-018 | Separar aprobación adicional por cualquier postulación real o modo `AUTO_SUBMIT`; exigir evidencia de consentimiento por portal y candidato. | | |
+| TASK-023 | Confirmar `us-east-1` y correo privado, guardar Calculator y reemplazar presupuesto general por diseño filtrado; probar CDK sin presupuesto inicial y con filtro posterior. | ✅ | 2026-10-13 |
+| TASK-024 | Con aprobación expresa, revisar cambios y desplegar sólo `aji-shared-dev` + `aji-alec-dev` apagados en `us-east-1`, sin presupuesto propio inicial. | | |
+| TASK-025 | Después de que aparezca `Project` en Billing, obtener aprobación para activar esa etiqueta de asignación de costos y verificar su cobertura. | | |
+| TASK-026 | Con aprobación expresa, actualizar shared para crear `aji-project-dev` filtrado, con avisos reales a USD 3/5 al correo privado confirmado. | | |
 
 ## 3. Alternatives
 
@@ -137,7 +141,7 @@ El pull con Boto3 y lock condicional está codificado para Alec, pero no se ejec
 - **RISK-001**: El usuario IAM administrador actual permite más acceso del debido. Su uso como origen en este PC fue autorizado; una sesión asumida de Alec limita las operaciones ordinarias del proceso, pero el administrador puede saltarse ese límite.
 - **RISK-002**: Fuentes ATS pueden cambiar sus esquemas o términos. Versionar fixtures y validar cada fuente antes de activarla.
 - **RISK-003**: La ausencia de datos de salario o elegibilidad puede reducir matches; se prefiere revisión a una inferencia falsa.
-- **ASSUMPTION-001**: `us-east-1` es solo región propuesta para síntesis local, no aprobación de residencia ni despliegue.
+- **ASSUMPTION-001**: `us-east-1` fue confirmada por el usuario como región para este primer equipo; no constituye aprobación de despliegue.
 - **ASSUMPTION-002**: Los dos candidatos operarán equipos propios y aprobarán sus perfiles y políticas de forma individual.
 
 ## 8. Related Specifications / Further Reading

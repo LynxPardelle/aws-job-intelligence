@@ -1,6 +1,6 @@
 # Estimación preliminar de costos AWS
 
-Fecha: 2026-10-13. Estado: **escenario de planeación, no cotización ni aprobación de gasto**. Región ilustrativa: `us-east-1`; la región final y el uso compartido de cuotas gratuitas siguen pendientes. No hay recursos desplegados por este repositorio.
+Fecha: 2026-10-13. Estado: **escenario de planeación, no cotización ni aprobación de gasto**. Región confirmada por el usuario: `us-east-1`. No hay recursos desplegados por este repositorio.
 
 ## Volumen ilustrativo mensual
 
@@ -10,7 +10,9 @@ Fecha: 2026-10-13. Estado: **escenario de planeación, no cotización ni aprobac
 - 0.1 GB de logs ingeridos y dos alarmas estándar de CloudWatch, una por Lambda.
 - Sin NAT, EC2, RDS, servicios permanentes, APIs de pago externas ni transferencias significativas entre regiones.
 
-La tabla usa tarifas públicas como **suposiciones de cálculo** y omite descuentos, créditos y Free Tier salvo Scheduler. Se debe cargar el volumen real en [AWS Pricing Calculator](https://calculator.aws/) cuando se confirme la región. Las dimensiones de lectura/escritura y tarifas de ejemplo se basan en la [página de DynamoDB](https://aws.amazon.com/dynamodb/pricing/); el almacenamiento incluye sobrecarga por elemento, por lo que 0.5 GB es una hipótesis de facturación, no una conversión exacta del JSON.
+Se cargó este escenario en [AWS Pricing Calculator, estimación pública revisable](https://calculator.aws/#/estimate?id=7cb2aa5f807fc711290c42c815d33de5ed9e11b8) el 2026-10-13. El enlace no contiene identidad de cuenta ni datos personales y caduca al año. La calculadora muestra **USD 0.69/mes** para DynamoDB (0.40), S3 (0.03), Lambda (0.01) y CloudWatch (0.25), con precios de `us-east-1`. No se imputó cuota gratuita a esos cuatro conceptos principales; la salida redondea cada servicio. DynamoDB se configuró con 1 GB total, 4 KB por elemento, 60,000 escrituras lógicas (tabla e índice) y 50,000 lecturas; S3 con 0.5 GB, 3,000 PUT/LIST y 10,000 GET; Lambda con 60 invocaciones de 60 s y 256 MB; CloudWatch con 0.1 GB de logs y dos alarmas estándar. El almacenamiento de DynamoDB incluye sobrecarga por elemento, por lo que 0.5 GB por tabla/índice es una hipótesis de facturación, no una conversión exacta del JSON.
+
+La tabla siguiente conserva el cálculo manual transparente. Omite descuentos, créditos y Free Tier salvo Scheduler. Las dimensiones y tarifas de ejemplo se basan en la [página de DynamoDB](https://aws.amazon.com/dynamodb/pricing/).
 
 | Concepto | Cálculo ilustrativo | USD/mes |
 | --- | ---: | ---: |
@@ -24,20 +26,22 @@ La tabla usa tarifas públicas como **suposiciones de cálculo** y omite descuen
 | CloudWatch Logs | 0.1 GB × $0.50/GB, supuesto conservador sin cuota gratuita | 0.050 |
 | Alarmas CloudWatch | 2 alarmas estándar × $0.10/mes | 0.200 |
 | AWS Budgets | Una alerta de costo sin acciones | 0.000 |
-| **Subtotal modelado** | Redondeado, primer equipo | **0.70** |
+| **Subtotal modelado manualmente** | Redondeado, primer equipo | **0.70** |
 
 Las referencias de tarifas y cuotas son: [S3](https://aws.amazon.com/s3/pricing/), [Lambda](https://aws.amazon.com/lambda/pricing/), [EventBridge Scheduler](https://aws.amazon.com/eventbridge/pricing/), [CloudWatch](https://aws.amazon.com/cloudwatch/pricing/) y [AWS Budgets](https://aws.amazon.com/aws-cost-management/aws-budgets/pricing/). [AWS documenta que un índice GSI con proyección `ALL` duplica los atributos y añade escrituras y almacenamiento](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html). El precio S3 Standard ilustrativo y las solicitudes deben confirmarse en Calculator para la región elegida.
 
 ## Límites de la estimación
 
-El subtotal incluye **un** publicador pero no el segundo candidato, tamaños reales de descripciones/documentos, tráfico saliente, costos de bootstrap CDK, impuestos, otras cargas de la cuenta ni uso que exceda cuotas gratuitas. La proyección `ALL` puede superar los 4 KB supuestos y elevar escrituras y almacenamiento. Tampoco cubre electricidad, Codex ni APIs externas. El objetivo de menos de USD 5/mes no está demostrado para producción. El presupuesto CDK de USD 5 se configura para **toda la cuenta**, con avisos a USD 3 y 5, porque una alerta filtrada por etiqueta puede omitir cargos mientras `Project` no esté activada como etiqueta de asignación de costos. Eso puede incluir gastos ajenos al proyecto; se revisará el presupuesto existente de la cuenta antes de desplegar. [AWS explica que las etiquetas requieren activación y pueden tardar en aparecer](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/activating-tags.html).
+El subtotal incluye **un** publicador pero no el segundo candidato, tamaños reales de descripciones/documentos, tráfico saliente, posibles costos del bootstrap existente, impuestos, otras cargas de la cuenta ni uso que exceda cuotas gratuitas. La calculadora no modeló EventBridge Scheduler ni AWS Budgets; el cálculo manual los deja en USD 0 para este volumen y para un presupuesto sin acciones. La proyección `ALL` puede superar los 4 KB supuestos y elevar escrituras y almacenamiento. Tampoco cubre electricidad, Codex ni APIs externas. El objetivo de menos de USD 5/mes no está demostrado para producción.
+
+Una consulta de solo lectura encontró **siete presupuestos preexistentes** en la cuenta, incluidos dos de alcance general que ya superan USD 5 de gasto real mensual por otros proyectos. Un presupuesto nuevo de cuenta completa con avisos a USD 3/5 daría una señal ya rebasada. La plantilla CDK prepara `aji-project-dev`, filtrado por `user:Project$AWSJobIntelligence`, pero **lo omite en la primera síntesis/despliegue** si no se proporciona `budgetEmail`. Tras crear recursos etiquetados, se deberá activar la clave `Project` como etiqueta de asignación de costos y comprobar su disponibilidad; AWS indica hasta 24 h para que aparezca y otras 24 h para activarse. Sólo entonces se añadiría el presupuesto con aprobación expresa. Un filtro por etiqueta puede omitir cargos sin esa etiqueta, por lo que se revisarán también los costos generales de la cuenta. [AWS: activación de etiquetas](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/activating-tags.html) y [filtros de Budgets](https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-create-filters.html).
 
 Las alertas de AWS Budgets no detienen servicios automáticamente. El kill switch operativo será deshabilitar ambos Scheduler y mantener `AJI_ENABLED=false` y `AJI_PUBLISH_ENABLED=false`; luego revisar funciones, almacenamiento y costos reales. La concurrencia Lambda está limitada a 1 por función, el timeout a 60 segundos, CloudWatch a 7 días y los lotes S3 de `batches/` a 30 días. El TTL DynamoDB sólo elimina elementos que reciban `expires_at`; no constituye una política de borrado de todo dato privado.
 
 ## Antes de aprobar un despliegue
 
-1. Confirmar región y residencia, fuentes, volumen real y cuota gratuita disponible de la cuenta.
-2. Completar Calculator por servicio y anexar su enlace/exportación revisable.
-3. Confirmar destinatario de alertas, presupuestos preexistentes y alcance de los avisos de cuenta completa.
-4. Revisar límites de fuentes/solicitudes y el costo del publicador de lotes cuando exista.
-5. Pedir aprobación explícita para stacks, región, presupuesto, IAM y gasto esperable. Ninguno de esos cambios se ejecuta desde esta estimación.
+1. Revisar el escenario de [Calculator](https://calculator.aws/#/estimate?id=7cb2aa5f807fc711290c42c815d33de5ed9e11b8), fuentes, tamaños reales, cuota gratuita disponible y el gasto real observado de la cuenta.
+2. Aprobar expresamente, si procede, el primer despliegue de `aji-shared-dev` y `aji-alec-dev` en `us-east-1`, con ambos Scheduler desactivados y **sin** presupuesto específico del proyecto mientras la etiqueta no esté activa.
+3. Después de que los recursos etiquetados aparezcan en Billing, solicitar aprobación expresa para activar `Project` como etiqueta de asignación de costos; verificar su estado y cobertura.
+4. Solicitar aprobación expresa para actualizar `aji-shared-dev` con el presupuesto filtrado de USD 5 y avisos a USD 3/5 al correo confirmado, almacenado sólo en `private/local-aws.json`.
+5. Pedir autorización separada antes de activar fuentes, programaciones o cualquier envío real. Ninguno de esos cambios se ejecuta desde esta estimación.

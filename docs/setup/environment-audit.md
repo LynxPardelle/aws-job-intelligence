@@ -29,10 +29,11 @@ Se instaló un entorno virtual **sólo local** con `requirements-dev.txt`: Repor
 ## AWS
 
 - Perfil disponible: `default`; el perfil `aji-admin` mencionado como ejemplo en el plan no existe.
-- Región configurada: `us-east-1`. La cuenta responde a STS; identificador terminado en `4577`.
+- Región configurada y confirmada por el usuario: `us-east-1`. La cuenta responde a STS; identificador terminado en `4577`.
 - Principal: usuario IAM de CLI en grupo `ADMIN` con `AdministratorAccess` heredado. Hay una clave de acceso activa guardada en el archivo local de credenciales y no se observó MFA asociada a ese usuario.
 - No se encontraron stacks CloudFormation, tablas DynamoDB, programaciones EventBridge Scheduler, funciones Lambda ni buckets S3 con prefijo `aji-` en las consultas realizadas. Tampoco recursos con etiqueta `Project=AWSJobIntelligence` en `us-east-1` ni presupuesto `aji-` visible.
 - Esta búsqueda usa prefijo/etiqueta y no constituye un inventario exhaustivo de la cuenta. No se inspeccionaron recursos de otras regiones.
+- Revisión adicional de solo lectura: `CDKToolkit` existe en `us-east-1` y terminó `UPDATE_COMPLETE` con bootstrap v31. AWS Budgets mostró siete presupuestos preexistentes; los dos generales ya superan USD 5 de gasto real mensual. No se consultó Cost Explorer API, cuya lectura tiene tarifa.
 
 **Hallazgo de seguridad:** el perfil actual no satisface por sí solo la preferencia inicial por credenciales temporales ni el principio de mínimo privilegio del plan. **Actualización 2026-10-13:** el usuario autorizó expresamente usar este perfil administrador en esta computadora. Se conservará la clave sólo en el almacén local de AWS CLI y se propone asumir un rol de Alec para la tarea diaria. Los cambios de IAM, despliegue y gastos siguen requiriendo aprobación concreta. Véase `docs/architecture/adr-002-first-pc-admin.md`.
 

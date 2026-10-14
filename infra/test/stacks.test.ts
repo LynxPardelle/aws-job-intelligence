@@ -59,7 +59,9 @@ test('shared stack schedules collection at 08:00 Mexico City but leaves it disab
       Notification: { Threshold: number; ThresholdType: string }
     }> }
   }>;
-  assert.equal(budgets[0].Properties.Budget.CostFilters, undefined);
+  assert.deepEqual(budgets[0].Properties.Budget.CostFilters, {
+    TagKeyValue: ['user:Project$AWSJobIntelligence'],
+  });
   assert.deepEqual(budgets[0].Properties.NotificationsWithSubscribers.map(item =>
     [item.Notification.Threshold, item.Notification.ThresholdType]),
   [[3, 'ABSOLUTE_VALUE'], [5, 'ABSOLUTE_VALUE']]);

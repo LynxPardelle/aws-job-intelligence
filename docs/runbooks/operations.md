@@ -1,13 +1,13 @@
 # Operación y apagado seguro (borrador)
 
-Estado: preparado localmente; requiere identidades, región y recursos reales aprobados. Este archivo describe acciones futuras, **no autoriza ejecutarlas**.
+Estado: preparado localmente; región `us-east-1` y correo de alertas confirmados, recursos reales aún pendientes de aprobación. Este archivo describe acciones futuras, **no autoriza ejecutarlas**.
 
 ## Antes de habilitar una corrida diaria
 
 1. Verificar con STS cuenta, región y principal. En este primer PC, el usuario autorizó expresamente el perfil administrador `default` como origen; la tarea de Alec deberá asumir su rol propio cuando exista. No copiar la clave. En el segundo PC se validará una identidad distinta.
 2. Probar con cada identidad que puede leer vacantes públicas y sus propios lote, estado y bucket; probar que no puede leer ni escribir los recursos del otro candidato.
 3. Confirmar `AJI_ENABLED=false`, `AJI_PUBLISH_ENABLED=false` y ambos Scheduler `DISABLED` en el primer despliegue. Cargar la política JSON aprobada del candidato en `config/search-policy.json` de su bucket privado; confirmar fuentes autorizadas y activarlas por separado, con cuota, timeout y condiciones de uso revisadas.
-4. Verificar presupuesto de USD 3/5, correo de alertas, costos de cuenta existentes y Calculator. La alerta no es un límite duro.
+4. Revisar el [escenario de Calculator](../costs/estimate.md) y costos reales. En la primera creación no habrá presupuesto propio porque la etiqueta de asignación de costos `Project` debe activarse después de etiquetar recursos; los presupuestos generales existentes ya superan USD 5 por otros proyectos. Tras aprobaciones separadas, verificar la etiqueta activa y el presupuesto filtrado `aji-project-dev` con avisos USD 3/5 al correo privado confirmado. La alerta no es un límite duro y no incluye cargos sin etiqueta.
 5. En cada PC, confirmar zona `America/Mexico_City`, autenticación temporal, ruta local y acceso a Remote antes de crear la automatización nativa de las 09:00.
 
 ## Corrida normal

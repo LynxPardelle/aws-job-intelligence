@@ -103,8 +103,9 @@ export class SharedStack extends Stack {
     if (props.budgetEmail) {
       new budgets.CfnBudget(this, 'MonthlyCostBudget', {
         budget: {
-          budgetName: 'aji-account-guard-dev', budgetType: 'COST', timeUnit: 'MONTHLY',
+          budgetName: 'aji-project-dev', budgetType: 'COST', timeUnit: 'MONTHLY',
           budgetLimit: { amount: 5, unit: 'USD' },
+          costFilters: { TagKeyValue: ['user:Project$AWSJobIntelligence'] },
         },
         notificationsWithSubscribers: [3, 5].map(amount => ({
           notification: {

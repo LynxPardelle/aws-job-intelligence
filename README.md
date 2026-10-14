@@ -38,10 +38,10 @@ cd infra
 $env:NODE_OPTIONS='--use-system-ca'
 npm ci
 npm test
-npm run synth -- -c account=111111111111 -c region=us-east-1 -c alecPrincipalArn=arn:aws:iam::111111111111:user/example-admin -c budgetEmail=alerts@example.invalid --quiet
+npm run synth -- -c account=111111111111 -c region=us-east-1 -c alecPrincipalArn=arn:aws:iam::111111111111:user/example-admin --quiet
 ```
 
-El ejemplo usa una cuenta y un principal **ficticios**. Más adelante `hectorPrincipalArn` añadirá el tercer stack. Antes de cualquier AWS real, `powershell -File scripts/check-aws-local.ps1` verifica la identidad `default` frente a una configuración privada ignorada. Véase [ADR-002](docs/architecture/adr-002-first-pc-admin.md).
+El ejemplo usa una cuenta y un principal **ficticios**. La síntesis inicial omite el presupuesto propio del proyecto; después de activar la etiqueta de asignación de costos `Project` y recibir aprobación, el contexto `budgetEmail` añade `aji-project-dev` filtrado por esa etiqueta. El correo confirmado sólo está en `private/local-aws.json`. Más adelante `hectorPrincipalArn` añadirá el tercer stack. Antes de cualquier AWS real, `powershell -File scripts/check-aws-local.ps1` verifica la identidad `default` frente a una configuración privada ignorada. Véanse [ADR-002](docs/architecture/adr-002-first-pc-admin.md) y la [propuesta de despliegue](docs/deployment-review.md).
 
 El script `scripts/run-alec-pull.py` está listo para el primer equipo. Después de aprobar y desplegar la infraestructura, se añadirán al archivo ignorado `private/local-aws.json` los outputs `alec_role_arn` y `alec_bucket`. Instalar `requirements-aws.txt` habilita Boto3 local. Sin `--claim`, el script sólo inspecciona el lote; con `--claim` adquiere el lock en DynamoDB y guarda un resumen privado en `applications/alec/`. No se ejecutó contra AWS porque los recursos aún no existen.
 

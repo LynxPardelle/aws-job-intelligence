@@ -9,8 +9,8 @@ const alecPrincipalArn = app.node.tryGetContext('alecPrincipalArn') as string | 
 const hectorPrincipalArn = app.node.tryGetContext('hectorPrincipalArn') as string | undefined;
 const budgetEmail = app.node.tryGetContext('budgetEmail') as string | undefined;
 
-if (!account || !/^\d{12}$/.test(account) || !region || !alecPrincipalArn || !budgetEmail) {
-  throw new Error('synth requires account, region, alecPrincipalArn and budgetEmail context');
+if (!account || !/^\d{12}$/.test(account) || !region || !alecPrincipalArn) {
+  throw new Error('synth requires account, region and alecPrincipalArn context');
 }
 if (hectorPrincipalArn && alecPrincipalArn === hectorPrincipalArn) {
   throw new Error('candidate principals must be different');
