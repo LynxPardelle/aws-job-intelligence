@@ -12,6 +12,7 @@ from .normalizer import utc_timestamp
 
 
 _MEXICO_CITY = ZoneInfo("America/Mexico_City")
+MAX_POLICY_BYTES = 65_536
 
 
 def _policy_from_dict(raw: dict, candidate_id: str) -> tuple[SearchPolicy, int]:
@@ -113,7 +114,17 @@ def handler(event, context):
 
     s3 = boto3.client("s3")
     try:
-        raw = json.loads(s3.get_object(Bucket=bucket, Key=policy_key)["Body"].read())
+        response = s3.get_object(Bucket=bucket, Key=policy_key)
+        stream = response["Body"]
+        try:
+            if response.get("ContentLength", 0) > MAX_POLICY_BYTES:
+                raise ValueError("private policy exceeds size limit")
+            raw_bytes = stream.read(MAX_POLICY_BYTES + 1)
+        finally:
+            stream.close()
+        if len(raw_bytes) > MAX_POLICY_BYTES:
+            raise ValueError("private policy exceeds size limit")
+        raw = json.loads(raw_bytes)
         policy, max_jobs = _policy_from_dict(raw, candidate_id)
         table = boto3.resource("dynamodb").Table(os.environ["AJI_PUBLIC_TABLE"])
     except Exception:

@@ -17,6 +17,7 @@ from .normalizer import utc_timestamp
 
 
 _MEXICO_CITY = ZoneInfo("America/Mexico_City")
+MAX_BATCH_OBJECT_BYTES = 32_000_000
 
 
 def _batch_time(now: str) -> tuple[str, str, str]:
@@ -42,7 +43,7 @@ def mark_failed_batch(candidate_id: str, now: str, s3, bucket: str) -> dict:
         raise ValueError("invalid candidate publication settings")
     generated_at, local_day, expires_at = _batch_time(now)
     manifest = build_manifest(candidate_id, f"{candidate_id}:{local_day}", [],
-                              generated_at, expires_at, status="FAILED")
+                              generated_at, expires_at, matches=[], status="FAILED")
     _put_json(s3, bucket, f"batches/{local_day}/manifest.json", manifest)
     return manifest
 
@@ -68,7 +69,8 @@ def publish_candidate_batch(jobs: list[Job], policy: SearchPolicy, now: str,
     selected_matches = [asdict(match) for _, match in results]
     batch_id = f"{policy.candidate_id}:{local_day}"
     prefix = f"batches/{local_day}/"
-    ready = build_manifest(policy.candidate_id, batch_id, selected_jobs, generated_at, expires_at)
+    ready = build_manifest(policy.candidate_id, batch_id, selected_jobs, generated_at,
+                           expires_at, matches=selected_matches)
     mark_failed_batch(policy.candidate_id, generated_at, s3, bucket)
     _put_json(s3, bucket, prefix + "jobs.json", selected_jobs)
     _put_json(s3, bucket, prefix + "matches.json", selected_matches)
@@ -87,12 +89,21 @@ class CandidateBatchStore:
 
     def _get_json(self, key: str):
         try:
-            body = self.s3.get_object(Bucket=self.bucket, Key=key)["Body"].read()
+            response = self.s3.get_object(Bucket=self.bucket, Key=key)
+            stream = response["Body"]
+            try:
+                if response.get("ContentLength", 0) > MAX_BATCH_OBJECT_BYTES:
+                    raise ValueError("private batch object exceeds size limit")
+                body = stream.read(MAX_BATCH_OBJECT_BYTES + 1)
+            finally:
+                stream.close()
         except Exception as exc:
             code = getattr(exc, "response", {}).get("Error", {}).get("Code")
             if isinstance(exc, KeyError) or code in {"NoSuchKey", "404"}:
                 raise ValueError("batch object missing") from exc
             raise
+        if len(body) > MAX_BATCH_OBJECT_BYTES:
+            raise ValueError("private batch object exceeds size limit")
         return json.loads(body)
 
     def load(self, now: str) -> tuple[dict, list[dict], list[dict]]:
@@ -105,7 +116,7 @@ class CandidateBatchStore:
         matches = self._get_json(prefix + "matches.json")
         if not isinstance(jobs, list) or not isinstance(matches, list):
             raise ValueError("invalid candidate batch payload")
-        validate_batch(manifest, jobs, self.candidate_id, now)
+        validate_batch(manifest, jobs, self.candidate_id, now, matches=matches)
         if [item.get("job_id") for item in matches] != manifest["job_ids"] or any(
                 item.get("candidate_id") != self.candidate_id for item in matches):
             raise ValueError("match results do not belong to this batch")

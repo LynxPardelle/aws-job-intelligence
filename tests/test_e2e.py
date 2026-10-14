@@ -2,7 +2,7 @@ import json
 import sys
 import tempfile
 import unittest
-from dataclasses import replace
+from dataclasses import asdict, replace
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
@@ -20,13 +20,15 @@ class EndToEndTests(unittest.TestCase):
         profile = json.loads((root / "verified_profile.json").read_text("utf-8"))
         job = parse_feed("ashby", "acmeexample", "Acme Example", feed, "2026-10-13T14:00:00Z")[0]
         job = replace(job, mexico_eligibility="eligible")  # Only fixture simulates verification.
-        batch = build_manifest("fictional", "batch-demo", [job.to_dict()],
-                               "2026-10-13T14:00:00Z", "2026-10-13T18:00:00Z")
-        validate_batch(batch, [job.to_dict()], "fictional", "2026-10-13T15:00:00Z")
-        locks = BatchLock()
-        self.assertTrue(locks.try_acquire("fictional", batch["batch_id"]))
         policy = SearchPolicy("fictional", ("python", "data"), ("senior",), ("remote",), 75000, "USD", 70)
         match = match_job(job, policy, "2026-10-13T15:00:00Z")
+        batch = build_manifest("fictional", "batch-demo", [job.to_dict()],
+                               "2026-10-13T14:00:00Z", "2026-10-13T18:00:00Z",
+                               matches=[asdict(match)])
+        validate_batch(batch, [job.to_dict()], "fictional", "2026-10-13T15:00:00Z",
+                       matches=[asdict(match)])
+        locks = BatchLock()
+        self.assertTrue(locks.try_acquire("fictional", batch["batch_id"]))
         self.assertEqual(match.decision, "shortlist")
 
         with tempfile.TemporaryDirectory() as directory:

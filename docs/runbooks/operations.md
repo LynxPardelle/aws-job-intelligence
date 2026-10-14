@@ -13,7 +13,7 @@ Estado: `aji-shared-dev` y `aji-alec-dev` desplegados con aprobación en `us-eas
 ## Corrida normal
 
 - AWS recolecta vacantes a las 08:00 y el publicador intenta crear el lote privado a las 08:30, sólo cuando ambos servicios estén autorizados y habilitados. Una fuente que falla deja el marcador de recolección incompleto; el publicador deja el manifiesto FAILED y no produce un lote READY falso.
-- El pull de las 09:00 valida versión, titular, estado READY, vigencia del mismo día local, IDs y checksum antes de procesar. Si el lote falta o S3 deniega su lectura, informa `BATCH_UNAVAILABLE_OR_DENIED` y sale con error; no reutiliza un lote viejo ni adquiere lock.
+- El pull de las 09:00 valida versión v1.1, titular, estado READY, vigencia del mismo día local, IDs y checksums de vacantes y scoring antes de procesar. Si el lote falta o S3 deniega su lectura, informa `BATCH_UNAVAILABLE_OR_DENIED` y sale con error; otros errores AWS devuelven `BATCH_AWS_ERROR`. No reutiliza un lote viejo ni adquiere lock. Antes de habilitarlo debe actualizarse el publicador desplegado, que aún genera v1.0.
 - Un lock condicional en la tabla privada por candidato+lote evita reprocesamiento. La operación DynamoDB existe en `CandidateBatchStore`; la vista previa de `scripts/run-alec-pull.py` no lo reclama y `--claim` sí.
 - Cada candidato usa únicamente su perfil privado aprobado. Los artefactos locales están en `applications/` fuera de Git. No se rellenan ni envían formularios en el MVP actual.
 - El resumen diario distingue encontrados, shortlist, CVs, pendientes, confirmados y errores; un fallo AWS no reutiliza un lote viejo como si fuera nuevo.

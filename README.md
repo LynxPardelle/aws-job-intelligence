@@ -4,7 +4,7 @@ Prototipo local de descubrimiento de vacantes y preparación controlada de candi
 
 ## Estado
 
-Fase 0 auditada y prototipo local de Fases 1–3 probado con datos inventados. Con aprobación expresa se desplegaron `aji-shared-dev` y `aji-alec-dev` en `us-east-1`, se activó `Project` para asignación de costos y se creó el presupuesto filtrado `aji-project-dev` de USD 5/mes con avisos a USD 3/5. Ambos Scheduler están `DISABLED` y las Lambdas tienen sus flags de ejecución en `false`. El segundo equipo queda pendiente. **No se han enviado postulaciones.** Consultar [progreso](docs/progress.md), [resultado del despliegue](docs/deployment-review.md), [auditoría](docs/setup/environment-audit.md), [plan](plan/feature-local-mvp-1.md) y [costos](docs/costs/estimate.md).
+Fase 0 auditada y prototipo local de Fases 1–3 probado con datos inventados. Con aprobación expresa se desplegaron `aji-shared-dev` y `aji-alec-dev` en `us-east-1`, se activó `Project` para asignación de costos y se creó el presupuesto filtrado `aji-project-dev` de USD 5/mes con avisos a USD 3/5. Ambos Scheduler están `DISABLED` y las Lambdas tienen sus flags de ejecución en `false`. El lote local v1.1 aún requiere desplegar el código del publicador antes de operar; el segundo equipo queda pendiente. **No se han enviado postulaciones.** Consultar [progreso](docs/progress.md), [revisión de activación](docs/activation-review.md), [resultado del despliegue](docs/deployment-review.md), [auditoría](docs/setup/environment-audit.md), [plan](plan/feature-local-mvp-1.md) y [costos](docs/costs/estimate.md).
 
 ## Estructura
 

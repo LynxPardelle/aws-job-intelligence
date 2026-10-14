@@ -25,6 +25,8 @@ def read_batch_summary(store: CandidateBatchStore, now: str, claim: bool) -> tup
         code = getattr(exc, "response", {}).get("Error", {}).get("Code")
         if code in {"AccessDenied", "NoSuchKey", "404"}:
             error_code = "BATCH_UNAVAILABLE_OR_DENIED"
+        elif isinstance(code, str) and code:
+            error_code = "BATCH_AWS_ERROR"
         elif isinstance(exc, ValueError):
             error_code = "BATCH_INVALID_OR_STALE"
         else:

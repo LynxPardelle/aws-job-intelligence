@@ -125,6 +125,23 @@ class PublisherTests(unittest.TestCase):
         manifest = json.loads(s3.objects[("alec-private", "batches/2026-10-13/manifest.json")])
         self.assertEqual(manifest["status"], "FAILED")
 
+    def test_oversized_private_policy_fails_before_public_query(self):
+        s3 = FakeS3()
+        s3.put_object(Bucket="alec-private", Key="config/search-policy.json",
+                      Body=b" " * 65_537, ContentType="application/json")
+        boto3 = SimpleNamespace(client=lambda name: s3,
+                                resource=lambda name: self.fail("public table should not be read"))
+        environment = {
+            "AJI_PUBLISH_ENABLED": "true", "AJI_CANDIDATE_ID": "alec",
+            "AJI_PRIVATE_BUCKET": "alec-private", "AJI_PUBLIC_TABLE": "aji-public-jobs-dev",
+        }
+        with patch.dict(os.environ, environment), patch.dict(sys.modules, {"boto3": boto3}), \
+                patch("aji.publisher_handler.datetime", FixedDatetime):
+            with self.assertRaisesRegex(ValueError, "policy exceeds size limit"):
+                handler({}, None)
+        manifest = json.loads(s3.objects[("alec-private", "batches/2026-10-13/manifest.json")])
+        self.assertEqual(manifest["status"], "FAILED")
+
     def test_policy_rejects_unsupported_or_malformed_constraints(self):
         valid = {
             "candidate_id": "alec", "roles": ["Data Engineer"],

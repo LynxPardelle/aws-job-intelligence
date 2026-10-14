@@ -2,7 +2,7 @@
 goal: MVP local verificable de AWS Job Intelligence
 version: 1.0
 date_created: 2026-10-13
-last_updated: 2026-10-13
+last_updated: 2026-10-14
 owner: Codex
 status: 'In progress'
 tags: [feature, architecture, security, aws]
@@ -81,12 +81,12 @@ La síntesis CDK es un **esqueleto de desarrollo**: ambos Scheduler y las Lambda
 | TASK-013 | Crear `codex/daily-run.md` y simulador con perfiles ficticios; impedir preparación sin `verified-profile.json` aprobado. | ✅ | 2026-10-13 |
 | TASK-014 | Probar E2E local con lote ficticio que genere análisis y resumen sin postulación, registrar evidencia en `docs/progress.md`. | ✅ | 2026-10-13 |
 
-El pull con Boto3 y lock condicional está codificado para Alec, pero no se ejecutó contra AWS porque los recursos no existen. La simulación no completa la Fase 3 operativa ni valida Codex Remote.
+El pull con Boto3 y lock condicional está codificado para Alec. Los recursos AWS existen y se probó la vista previa sin lote del día con el rol asumido; el lock persistente y la corrida completa siguen sin probarse contra AWS. La simulación no completa la Fase 3 operativa ni valida Codex Remote.
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
 | TASK-021 | Preparar vista previa local de lote, resumen de oportunidades y script para asumir rol de Alec desde el perfil administrador, con `--claim` explícito para el lock. | ✅ | 2026-10-13 |
-| TASK-022 | Tras despliegue aprobado: registrar outputs de rol/bucket en `private/local-aws.json`, probar vista previa, lock, permisos negativos y visibilidad Remote. | | |
+| TASK-022 | Tras despliegue aprobado: registrar outputs de rol/bucket en `private/local-aws.json`, probar vista previa, lock, permisos negativos y visibilidad Remote. Outputs, vista previa y permisos probados; lock y Remote pendientes. | | |
 
 ### Implementation Phase 4
 
@@ -104,6 +104,7 @@ El pull con Boto3 y lock condicional está codificado para Alec, pero no se ejec
 | TASK-026 | Con aprobación expresa, actualizar shared para crear `aji-project-dev` filtrado, con avisos reales a USD 3/5 al correo privado confirmado. | ✅ | 2026-10-13 |
 | TASK-027 | Verificar stacks reales, estado apagado, privacidad, tags, límites, outputs privados y permisos permitidos/denegados con el rol asumido de Alec. | ✅ | 2026-10-13 |
 | TASK-028 | Mostrar error estructurado y no filtrar identificadores cuando la vista previa del pull no encuentre lote o carezca de acceso; probarlo localmente y contra AWS. | ✅ | 2026-10-13 |
+| TASK-029 | Endurecer el contrato de lote v1.1 con checksum de scoring, topes de lectura privada y errores AWS seguros; probar localmente y preparar diff de código sin desplegar. | ✅ | 2026-10-14 |
 
 ## 3. Alternatives
 

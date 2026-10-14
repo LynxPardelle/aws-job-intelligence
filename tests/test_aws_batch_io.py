@@ -4,6 +4,7 @@ import sys
 import unittest
 from dataclasses import replace
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
@@ -96,6 +97,19 @@ class AwsBatchIoTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             store.load("2026-10-13T15:05:00Z")
 
+    def test_modified_scoring_result_is_rejected_before_pull(self):
+        job, policy = inputs()
+        s3 = FakeS3()
+        publish_candidate_batch([job], policy, "2026-10-13T15:00:00Z", s3, "alec-private")
+        key = ("alec-private", "batches/2026-10-13/matches.json")
+        matches = json.loads(s3.objects[key])
+        matches[0]["score"] = 0 if matches[0]["score"] != 0 else 1
+        s3.objects[key] = json.dumps(matches).encode("utf-8")
+
+        with self.assertRaisesRegex(ValueError, "checksum"):
+            CandidateBatchStore("alec", "alec-private", s3, FakeTable()).load(
+                "2026-10-13T15:05:00Z")
+
     def test_partial_publish_keeps_failed_manifest_visible(self):
         job, policy = inputs()
         s3 = FakeS3(fail_on="matches.json")
@@ -113,6 +127,15 @@ class AwsBatchIoTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             publish_candidate_batch([job], policy, "2026-10-13T15:00:00Z", s3, "alec-private")
         self.assertEqual(s3.writes, [])
+
+    def test_pull_rejects_oversized_private_batch_object(self):
+        s3 = FakeS3()
+        s3.objects[("alec-private", "batches/2026-10-13/manifest.json")] = b" " * 129
+        store = CandidateBatchStore("alec", "alec-private", s3, FakeTable())
+
+        with patch("aji.aws_batch_io.MAX_BATCH_OBJECT_BYTES", 128):
+            with self.assertRaisesRegex(ValueError, "size limit"):
+                store.load("2026-10-13T15:05:00Z")
 
 
 if __name__ == "__main__":

@@ -37,6 +37,18 @@ class PullErrorTests(unittest.TestCase):
         self.assertEqual(summary["error_code"], "BATCH_INVALID_OR_STALE")
         self.assertNotIn("sensitive stale data", str(summary))
 
+    def test_other_aws_read_error_has_safe_nonzero_summary(self) -> None:
+        error = AwsError("ThrottlingException", "arn:aws:s3:::private-bucket secret-value")
+        with patch.object(MODULE, "inspect_daily_batch", side_effect=error):
+            try:
+                summary, exit_code = MODULE.read_batch_summary(object(), "2026-10-13T15:00:00Z", False)
+            except AwsError:
+                self.fail("AWS error escaped without a safe summary")
+        self.assertEqual(exit_code, 2)
+        self.assertEqual(summary["error_code"], "BATCH_AWS_ERROR")
+        self.assertNotIn("private-bucket", str(summary))
+        self.assertNotIn("secret-value", str(summary))
+
 
 if __name__ == "__main__":
     unittest.main()

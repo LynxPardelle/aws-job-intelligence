@@ -15,9 +15,16 @@ def sample_jobs():
                                                 "2026-10-13T14:00:00Z")]
 
 
+def sample_matches(jobs):
+    return [{"job_id": job["job_id"], "candidate_id": "fictional", "score": 0}
+            for job in jobs]
+
+
 def manifest(jobs=None, *, status="READY", generated_at="2026-10-13T14:00:00Z"):
-    return build_manifest("fictional", "batch-20261013", sample_jobs() if jobs is None else jobs,
-                          generated_at, "2026-10-13T18:00:00Z", status=status)
+    selected = sample_jobs() if jobs is None else jobs
+    return build_manifest("fictional", "batch-20261013", selected,
+                          generated_at, "2026-10-13T18:00:00Z",
+                          matches=sample_matches(selected), status=status)
 
 
 class BatchTests(unittest.TestCase):
@@ -29,7 +36,8 @@ class BatchTests(unittest.TestCase):
         self.assertEqual(set(batch), set(schema["required"]))
         self.assertEqual(batch["job_ids"], ["lever:acmeexample:lv-1"])
         self.assertTrue(batch["checksum"].startswith("sha256:"))
-        validate_batch(batch, jobs, "fictional", "2026-10-13T15:00:00Z")
+        validate_batch(batch, jobs, "fictional", "2026-10-13T15:00:00Z",
+                       matches=sample_matches(jobs))
 
     def test_failed_stale_or_wrong_candidate_batch_is_rejected(self):
         jobs = sample_jobs()
@@ -43,7 +51,7 @@ class BatchTests(unittest.TestCase):
         for batch, candidate, now in cases:
             with self.subTest(candidate=candidate, now=now, status=batch["status"]):
                 with self.assertRaises(ValueError):
-                    validate_batch(batch, jobs, candidate, now)
+                    validate_batch(batch, jobs, candidate, now, matches=sample_matches(jobs))
 
     def test_checksum_detects_modified_job_content(self):
         jobs = sample_jobs()
@@ -51,7 +59,8 @@ class BatchTests(unittest.TestCase):
         changed = [dict(jobs[0], title="Tampered title")]
 
         with self.assertRaises(ValueError):
-            validate_batch(batch, changed, "fictional", "2026-10-13T15:00:00Z")
+            validate_batch(batch, changed, "fictional", "2026-10-13T15:00:00Z",
+                           matches=sample_matches(jobs))
 
     def test_lock_is_idempotent_per_candidate_and_batch(self):
         locks = BatchLock()

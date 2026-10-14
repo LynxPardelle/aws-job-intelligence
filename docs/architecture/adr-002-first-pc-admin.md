@@ -13,9 +13,9 @@ Para la corrida diaria futura de Alec, `scripts/run-alec-pull.py` asumirá `aji-
 ## Controles actuales
 
 - `scripts/check-aws-local.ps1` comprueba por STS cuenta, región y principal frente a `private/local-aws.json`, ignorado por Git. Se verificó el perfil `default` de la cuenta terminada en `4577`, región configurada `us-east-1`.
-- CDK sólo se sintetiza localmente con datos ficticios. El primer despliegue seguiría dejando ambos Scheduler `DISABLED`, `AJI_ENABLED=false` y `AJI_PUBLISH_ENABLED=false`.
-- No se crea todavía automatización de Codex Desktop de las 09:00 ni perfil de rol que apunte a un recurso inexistente.
-- Las aprobaciones previas al despliegue, modificación de IAM, costos y postulaciones permanecen vigentes.
+- Con aprobación expresa se desplegaron shared+Alec en `us-east-1`; ambos Scheduler están `DISABLED` y los flags `AJI_ENABLED=false` y `AJI_PUBLISH_ENABLED=false`.
+- El rol `aji-alec-access-dev` existe y se probó con una sesión STS; el script local asume ese rol. Todavía no se creó la automatización de Codex Desktop de las 09:00.
+- La actualización local del contrato de lote v1.1 aún no se ha desplegado. Los próximos despliegues, la activación de servicios, los gastos adicionales y las postulaciones requieren aprobación concreta.
 
 ## Consecuencias
 
