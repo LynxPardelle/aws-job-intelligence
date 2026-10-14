@@ -4,7 +4,7 @@ Prototipo local de descubrimiento de vacantes y preparación controlada de candi
 
 ## Estado
 
-Fase 0 auditada y prototipo local de Fases 1–3 probado con datos inventados. Con aprobación expresa se desplegaron `aji-shared-dev` y `aji-alec-dev` en `us-east-1`; ambos Scheduler están `DISABLED` y las Lambdas tienen sus flags de ejecución en `false`. El presupuesto propio y el segundo equipo quedan pendientes. **No se han enviado postulaciones.** Consultar [progreso](docs/progress.md), [resultado del despliegue](docs/deployment-review.md), [auditoría](docs/setup/environment-audit.md), [plan](plan/feature-local-mvp-1.md) y [costos](docs/costs/estimate.md).
+Fase 0 auditada y prototipo local de Fases 1–3 probado con datos inventados. Con aprobación expresa se desplegaron `aji-shared-dev` y `aji-alec-dev` en `us-east-1`, se activó `Project` para asignación de costos y se creó el presupuesto filtrado `aji-project-dev` de USD 5/mes con avisos a USD 3/5. Ambos Scheduler están `DISABLED` y las Lambdas tienen sus flags de ejecución en `false`. El segundo equipo queda pendiente. **No se han enviado postulaciones.** Consultar [progreso](docs/progress.md), [resultado del despliegue](docs/deployment-review.md), [auditoría](docs/setup/environment-audit.md), [plan](plan/feature-local-mvp-1.md) y [costos](docs/costs/estimate.md).
 
 ## Estructura
 
@@ -41,7 +41,7 @@ npm test
 npm run synth -- -c account=111111111111 -c region=us-east-1 -c alecPrincipalArn=arn:aws:iam::111111111111:user/example-admin --quiet
 ```
 
-El ejemplo usa una cuenta y un principal **ficticios**. La síntesis inicial omite el presupuesto propio del proyecto; después de activar la etiqueta de asignación de costos `Project` y recibir aprobación, el contexto `budgetEmail` añade `aji-project-dev` filtrado por esa etiqueta. El correo confirmado sólo está en `private/local-aws.json`. Más adelante `hectorPrincipalArn` añadirá el tercer stack. Antes de cada operación AWS real, `powershell -File scripts/check-aws-local.ps1` verifica la identidad `default` frente a una configuración privada ignorada. Véanse [ADR-002](docs/architecture/adr-002-first-pc-admin.md) y el [resultado del primer despliegue](docs/deployment-review.md).
+El ejemplo usa una cuenta y un principal **ficticios**; omite el presupuesto para mostrar la primera síntesis. La actualización posterior aprobada pasó el contexto privado `budgetEmail` y creó `aji-project-dev` filtrado por `Project`, ya activa como etiqueta de asignación de costos. El correo confirmado sólo está en `private/local-aws.json`. Más adelante `hectorPrincipalArn` añadirá el tercer stack. Antes de cada operación AWS real, `powershell -File scripts/check-aws-local.ps1` verifica la identidad `default` frente a una configuración privada ignorada. Véanse [ADR-002](docs/architecture/adr-002-first-pc-admin.md) y el [resultado del despliegue](docs/deployment-review.md).
 
 El script `scripts/run-alec-pull.py` está listo para el primer equipo. Los outputs `alec_role_arn` y `alec_bucket` están en `private/local-aws.json`, ignorado por Git. Instalar `requirements-aws.txt` habilita Boto3 local. Sin `--claim`, el script sólo inspecciona el lote; con `--claim` adquiere el lock en DynamoDB y guarda un resumen privado en `applications/alec/` sólo si hay un lote READY. La vista previa real se probó sin lote y devolvió `BATCH_UNAVAILABLE_OR_DENIED` sin adquirir lock.
 

@@ -1,6 +1,6 @@
 # ADR-001: separación de datos por candidato
 
-Estado: aceptada para diseño local, pendiente de validación IAM antes de desplegar. Fecha: 2026-10-13.
+Estado: aceptada; rol de Alec desplegado y permisos permitidos/denegados comprobados con STS. La identidad de Héctor y las pruebas cruzadas permanecen pendientes. Fecha: 2026-10-13.
 
 ## Decisión
 

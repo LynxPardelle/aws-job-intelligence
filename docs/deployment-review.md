@@ -1,13 +1,13 @@
-# Primer despliegue: primer equipo
+# Despliegue y presupuesto: primer equipo
 
-Estado: **primer despliegue aprobado por el usuario y ejecutado** el 2026-10-13. Especificación principal: copia privada del plan maestro v3 en `private/specification/`. El segundo equipo y el stack de Héctor quedan fuera de este alcance.
+Estado: **primer despliegue y actualización del presupuesto aprobados por el usuario y ejecutados** el 2026-10-13. Especificación principal: copia privada del plan maestro v3 en `private/specification/`. El segundo equipo y el stack de Héctor quedan fuera de este alcance.
 
 ## Alcance exacto
 
 - Cuenta verificada por STS terminada en `4577`, perfil local `default` y usuario administrador autorizado en este PC. La clave existente permanece en el almacén local de AWS CLI; ninguna clave se copiará al repositorio.
 - Región `us-east-1`, **confirmada por el usuario** para este primer equipo.
 - Stacks `aji-shared-dev` y `aji-alec-dev` solamente. El primero crea tabla pública DynamoDB on-demand con GSI `collection-run-index`, Lambda collector, Scheduler a las 08:00 `America/Mexico_City`, log de 7 días y alarma de error. El segundo crea bucket S3 privado de Alec, tabla de estado privada, rol `aji-alec-access-dev`, Lambda publicador, Scheduler a las 08:30, log de 7 días y alarma de error.
-- Primer despliegue **sin presupuesto propio**: el CDK lo omitió porque no recibió `budgetEmail`. El correo para los futuros avisos fue confirmado por el usuario y está sólo en `private/local-aws.json`, ignorado por Git. El presupuesto posterior `aji-project-dev` será de USD 5/mes, con avisos reales a USD 3/5 y filtro `user:Project$AWSJobIntelligence`, después de activar y verificar esa etiqueta de costos con nueva aprobación.
+- Primer despliegue **sin presupuesto propio**: el CDK lo omitió porque no recibió `budgetEmail`. La actualización posterior, también aprobada, activó la etiqueta de costos `Project` y creó `aji-project-dev` de USD 5/mes, con avisos de gasto real a USD 3/5 y filtro `user:Project$AWSJobIntelligence`. El correo confirmado está sólo en `private/local-aws.json`, ignorado por Git.
 - Primer despliegue con ambos Scheduler `DISABLED` y variables `AJI_ENABLED=false` y `AJI_PUBLISH_ENABLED=false`; no habrá recolección programada ni publicación hasta una activación posterior aprobada. Las fuentes reales y la política JSON privada de Alec aún no están cargadas.
 - No se modifica ni crea infraestructura de Héctor, automatización de Codex Desktop, acceso al segundo PC, datos profesionales reales ni postulaciones.
 
@@ -32,11 +32,16 @@ Pasaron 53 pruebas Python y 9 pruebas CDK, síntesis local de dos y tres stacks 
 3. AWS confirmó ambos Scheduler `DISABLED`, `AJI_ENABLED=false` y `AJI_PUBLISH_ENABLED=false`, tablas `ACTIVE` on-demand y cifradas, bucket con Block Public Access y AES256, `Project=AWSJobIntelligence` en tablas, bucket, Lambdas, logs, alarmas y rol de Alec, logs de 7 días, concurrencia reservada 1, dos alarmas y **ningún presupuesto `aji-project-dev`**. Las plantillas de Scheduler no incluyen `Tags`; sus posibles cargos deberán vigilarse en el gasto general.
 4. Desde una sesión STS del rol `aji-alec-access-dev`, `GetItem` en las tablas pública y propia fue permitido; `Scan` de la tabla privada y `ListBucket` fueron denegados. La vista previa del pull, sin lote del día, devuelve JSON `BATCH_UNAVAILABLE_OR_DENIED` y código distinto de cero. No se subieron datos de prueba ni se adquirió lock.
 
+## Segunda actualización: etiqueta y presupuesto
+
+- El usuario aprobó activar `Project` como etiqueta de asignación de costos y crear el presupuesto filtrado. Cost Explorer mostró la clave `Inactive` antes de la activación; la API de actualización no devolvió errores y la consulta posterior la mostró `Active`.
+- El preflight de identidad volvió a pasar. `cdk diff --no-change-set` con el correo privado mostró **un único recurso nuevo `AWS::Budgets::Budget`** y el filtro `user:Project$AWSJobIntelligence`; el diff quedó en `private/budget-diff-authorized.txt`, fuera de Git. `cdk deploy aji-shared-dev` terminó en `UPDATE_COMPLETE`; Alec siguió en `CREATE_COMPLETE`.
+- AWS Budgets confirmó USD 5 mensuales, el filtro exacto, dos avisos de gasto real al superar USD 3 y USD 5, y el correo privado confirmado como destinatario de ambos. Se volvieron a verificar ambos Scheduler `DISABLED` y ambos flags Lambda en `false`. No se ha observado gasto atribuido ni entrega de correos.
+
 ## Cambios AWS pendientes
 
-- Cuando `Project` aparezca en Billing, solicitar aprobación expresa para activarla como etiqueta de asignación de costos. AWS indica que puede tardar hasta 24 horas en aparecer y hasta 24 horas más en activarse. Tras verificarla, solicitar aprobación para actualizar shared con `aji-project-dev` y los avisos al correo confirmado. Revisar también costos generales porque el filtro no incluye cargos sin etiqueta.
-- La comparación de solo lectura para esa actualización ya mostró **un único recurso nuevo `AWS::Budgets::Budget`** y el filtro `user:Project$AWSJobIntelligence`; quedó en `private/budget-diff.txt` fuera de Git. No se aplicó.
 - Observar gasto real antes de activar las funciones. El costo recurrente mínimo modelado incluye las dos alarmas (~USD 0.20/mes antes de cuotas); el escenario activo ilustrativo es USD 0.69/mes y no es un tope.
+- Verificar cobertura del presupuesto con gasto real y revisar también costos generales porque los Scheduler carecen de etiqueta y el filtro puede omitir cargos sin `Project`.
 - Solicitar autorización separada para activar fuentes, collector, publicador y automatización nativa de las 09:00. Solicitar otra autorización específica para cualquier postulación real. El stack y equipo de Héctor esperan el handoff posterior.
 
 El [runbook](runbooks/operations.md) contiene el apagado operativo. El [registro de progreso](progress.md) contiene los bloqueos vigentes y el handoff posterior al segundo equipo.

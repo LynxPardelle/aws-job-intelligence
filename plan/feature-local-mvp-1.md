@@ -100,8 +100,8 @@ El pull con Boto3 y lock condicional está codificado para Alec, pero no se ejec
 | TASK-018 | Separar aprobación adicional por cualquier postulación real o modo `AUTO_SUBMIT`; exigir evidencia de consentimiento por portal y candidato. | | |
 | TASK-023 | Confirmar `us-east-1` y correo privado, guardar Calculator y reemplazar presupuesto general por diseño filtrado; probar CDK sin presupuesto inicial y con filtro posterior. | ✅ | 2026-10-13 |
 | TASK-024 | Con aprobación expresa, revisar cambios y desplegar sólo `aji-shared-dev` + `aji-alec-dev` apagados en `us-east-1`, sin presupuesto propio inicial. | ✅ | 2026-10-13 |
-| TASK-025 | Después de que aparezca `Project` en Billing, obtener aprobación para activar esa etiqueta de asignación de costos y verificar su cobertura. | | |
-| TASK-026 | Con aprobación expresa, actualizar shared para crear `aji-project-dev` filtrado, con avisos reales a USD 3/5 al correo privado confirmado. | | |
+| TASK-025 | Después de que aparezca `Project` en Billing, obtener aprobación para activar esa etiqueta de asignación de costos y verificar su estado. | ✅ | 2026-10-13 |
+| TASK-026 | Con aprobación expresa, actualizar shared para crear `aji-project-dev` filtrado, con avisos reales a USD 3/5 al correo privado confirmado. | ✅ | 2026-10-13 |
 | TASK-027 | Verificar stacks reales, estado apagado, privacidad, tags, límites, outputs privados y permisos permitidos/denegados con el rol asumido de Alec. | ✅ | 2026-10-13 |
 | TASK-028 | Mostrar error estructurado y no filtrar identificadores cuando la vista previa del pull no encuentre lote o carezca de acceso; probarlo localmente y contra AWS. | ✅ | 2026-10-13 |
 
@@ -116,7 +116,7 @@ El pull con Boto3 y lock condicional está codificado para Alec, pero no se ejec
 - **DEP-001**: Python 3.11+ para Fase 1; ya existe Python 3.13.15. La demo PDF usa `requirements-dev.txt` con ReportLab, pypdf y tzdata en Windows.
 - **DEP-002**: Node.js y npm para CDK v2; ya existen Node 24.21.0 y npm 11.19.0.
 - **DEP-003**: Dependencias CDK fijadas en `infra/package-lock.json`; instalación local mediante `npm ci` antes de síntesis.
-- **DEP-004**: El perfil administrador `default` de este PC está autorizado como origen; el rol temporal de Alec y la política privada aún requieren despliegue aprobado. El segundo PC permanece pendiente.
+- **DEP-004**: El perfil administrador `default` de este PC está autorizado como origen; el rol temporal de Alec está desplegado y se probó mediante STS. La política privada de búsqueda de Alec y el segundo PC permanecen pendientes.
 - **DEP-005**: Perfil profesional verificado y aprobado por cada titular, pendiente para CVs reales.
 
 ## 5. Files

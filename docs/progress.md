@@ -1,6 +1,6 @@
 # Registro de avance
 
-Actualizado: 2026-10-13. Especificación principal: plan maestro v3 leído del Drive del titular, copia privada en `private/specification/` excluida de Git. Este archivo resume el estado para revisión desde Codex Remote. **El usuario aprobó y se desplegaron sólo `aji-shared-dev` y `aji-alec-dev` en `us-east-1`. Ambos Scheduler siguen desactivados, ambas funciones tienen flag de ejecución `false`, no se creó el presupuesto del proyecto ni se envió ninguna postulación.** El segundo equipo permanece pospuesto.
+Actualizado: 2026-10-13. Especificación principal: plan maestro v3 leído del Drive del titular, copia privada en `private/specification/` excluida de Git. Este archivo resume el estado para revisión desde Codex Remote. **Con aprobación expresa se desplegaron sólo `aji-shared-dev` y `aji-alec-dev` en `us-east-1`, se activó `Project` como etiqueta de costos y se creó `aji-project-dev` con avisos USD 3/5. Ambos Scheduler siguen desactivados, ambas funciones tienen flag de ejecución `false` y no se envió ninguna postulación.** El segundo equipo permanece pospuesto.
 
 ## Avances verificables
 
@@ -20,7 +20,8 @@ Actualizado: 2026-10-13. Especificación principal: plan maestro v3 leído del D
 | 2026-10-13 | Primer despliegue aprobado | Preflight de identidad y `cdk diff --no-change-set` comparados con la propuesta; dos stacks terminan `CREATE_COMPLETE`. Outputs del rol y bucket guardados sólo en `private/local-aws.json` | CloudFormation y `private/cdk-outputs.json` ignorado; `docs/deployment-review.md` |
 | 2026-10-13 | Verificación AWS | Dos Scheduler `DISABLED`, flags Lambda `false`, tablas `ACTIVE` on-demand, bucket privado cifrado, etiquetas `Project` en tablas, bucket, Lambdas, logs, alarmas y rol de Alec; logs 7 días, concurrencia 1 y presupuesto del proyecto ausente. Las plantillas de Scheduler no incluyen etiqueta | Consultas AWS de solo lectura y plantillas; `docs/deployment-review.md` |
 | 2026-10-13 | Rol y pull de Alec | STS asumió `aji-alec-access-dev`; `GetItem` público y privado permitido, `Scan` privado y `ListBucket` denegados. Sin lote del día, la vista previa devuelve error JSON seguro y código distinto de cero; no se adquirió lock | `scripts/run-alec-pull.py`, `tests/test_run_alec_pull.py` |
-| 2026-10-13 | Siguiente presupuesto preparado | `cdk diff --no-change-set` con el correo privado muestra únicamente un futuro recurso `AWS::Budgets::Budget` filtrado por `user:Project$AWSJobIntelligence`; no se aplicó | `private/budget-diff.txt` ignorado, `docs/costs/estimate.md` |
+| 2026-10-13 | Presupuesto preparado | `cdk diff --no-change-set` con el correo privado mostró únicamente un recurso `AWS::Budgets::Budget` filtrado por `user:Project$AWSJobIntelligence` | `private/budget-diff-authorized.txt` ignorado, `docs/costs/estimate.md` |
+| 2026-10-13 | Etiqueta y presupuesto autorizados | `Project` apareció `Inactive`; activación mediante API aceptada y estado verificado `Active`. `aji-shared-dev` pasó a `UPDATE_COMPLETE`; AWS Budgets confirmó límite USD 5/mes, filtro de proyecto y avisos de gasto real USD 3/5 al correo privado | Consultas de Cost Allocation Tags, CloudFormation y AWS Budgets; `docs/deployment-review.md` |
 
 ## Pruebas y auditorías
 
@@ -30,7 +31,7 @@ Actualizado: 2026-10-13. Especificación principal: plan maestro v3 leído del D
 - `npm run synth ... --quiet` con cuenta/principal/correo ficticios: **2 stacks sintetizados** para el primer PC (shared+Alec), con roles, bucket, tablas, índice, Lambdas y alarmas. Sin despliegue.
 - Síntesis local adicional con el contexto real privado de este PC y **sin** `budgetEmail`: dos stacks, cero presupuestos, dos Scheduler `DISABLED` y ambas variables de habilitación en `false`. Los identificadores privados no se registraron en Git.
 - `scripts/check-aws-local.ps1`: pasó con perfil `default`, cuenta terminada en `4577` y `us-east-1`; configuración con identificadores y outputs en `private/local-aws.json`, ignorada por Git.
-- Integración AWS autorizada: ambos stacks `CREATE_COMPLETE`; lectura permitida y operaciones no autorizadas denegadas desde la sesión asumida de Alec. No se escribieron datos de prueba, se invocaron Lambdas ni se activaron programaciones.
+- Integración AWS autorizada: shared `UPDATE_COMPLETE` y Alec `CREATE_COMPLETE`; lectura permitida y operaciones no autorizadas denegadas desde la sesión asumida de Alec. No se escribieron datos de prueba, se invocaron Lambdas ni se activaron programaciones. AWS Budgets confirmó el destinatario privado y los dos umbrales, pero aún no se ha probado la entrega de un correo ni el gasto atribuido.
 - Demo ficticia: PDF de una página, texto extraíble, render revisado visualmente; `submission-record.json` ausente. El resumen marca 0 postulaciones confirmadas.
 - `npm audit --audit-level=high`: **0 vulnerabilidades** con CA del sistema. `pip-audit` para `requirements-dev.txt` y el nuevo `requirements-aws.txt`: **0 vulnerabilidades conocidas**; TLS validado con el almacén de Windows.
 
@@ -42,7 +43,7 @@ Actualizado: 2026-10-13. Especificación principal: plan maestro v3 leído del D
 | B-04 | CVs reales sin reconciliación ni aprobación de cada titular | No se preparan paquetes reales | Crear perfiles privados con evidencia y consentimiento de reutilización |
 | B-05 | Empresas, feeds, términos y políticas privadas aún sin validar | Collector permanece desactivado y sin fuentes reales | Curar catálogo y criterios separados por candidato |
 | B-06 | El objetivo AWS < USD 5/mes aún no está validado con volumen real ni cuotas restantes | La estimación Calculator de USD 0.69/mes es hipotética, no límite | Observar consumo real; mantener servicios desactivados hasta decisión posterior |
-| B-08 | La mayoría de recursos tienen `Project`, pero la clave aún no está activada como etiqueta de asignación de costos; las plantillas de Scheduler no incluyen etiqueta | Todavía no existe presupuesto específico ni alerta USD 3/5; el filtro podría omitir cargos sin etiqueta | Esperar a que la clave aparezca en Billing; solicitar aprobación para activarla, verificar cobertura, vigilar cargos generales y luego crear el presupuesto filtrado |
+| B-09 | El presupuesto ya existe, pero la asignación de costos y la entrega de avisos no se han observado con gasto real; los Scheduler no están etiquetados | El filtro por `Project` puede omitir cargos sin etiqueta y las alertas no son un tope | Observar Budgets y gasto general durante la operación autorizada; no afirmar cobertura completa hasta tener datos |
 
 ## Trabajo técnico todavía pendiente
 
@@ -71,7 +72,8 @@ Actualizado: 2026-10-13. Especificación principal: plan maestro v3 leído del D
 | D-13 | 2026-10-13 | Región `us-east-1` y correo de alertas confirmados; “CS” interpretado como AWS | Instrucción directa del usuario. El correo queda fuera de Git |
 | D-14 | 2026-10-13 | Primer despliegue shared+Alec aprobado y ejecutado, con servicios apagados y sin presupuesto específico | Aprobación expresa del usuario al alcance de `docs/deployment-review.md`; validación posterior en AWS |
 | D-15 | 2026-10-13 | Si falta el lote, el pull devuelve error JSON genérico y código distinto de cero, sin ampliar `ListBucket` | S3 puede responder `AccessDenied` si el objeto falta y el rol no puede listar; no confundirlo con éxito ni exponer identificadores |
+| D-16 | 2026-10-13 | Activar la clave de costos `Project` y actualizar sólo shared con `aji-project-dev` después de comprobar que el diff añadía un único presupuesto | Aprobación expresa del usuario; AWS confirmó estado `Active`, filtro, USD 5/mes y avisos reales USD 3/5 |
 
 ## Próxima revisión
 
-Revisar este registro y el [resultado del primer despliegue](deployment-review.md). El próximo cambio AWS pendiente es activar `Project` como etiqueta de asignación de costos cuando Billing la muestre y, después de verificarla, crear el presupuesto filtrado con alertas; ambos requieren aprobación expresa antes de ejecutarse. La confirmación del primer despliegue no autoriza activar Scheduler, fuentes, automatizaciones, el segundo equipo ni postulaciones.
+Revisar este registro y el [resultado de AWS del primer equipo](deployment-review.md). La siguiente decisión operativa es validar fuentes y política privada de Alec antes de pedir autorización para habilitar collector, publicador y automatización de las 09:00. Las aprobaciones del despliegue y del presupuesto no autorizan esas activaciones, el segundo equipo ni postulaciones.
