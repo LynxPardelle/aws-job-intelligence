@@ -26,10 +26,12 @@ class JobContractTests(unittest.TestCase):
         job = example_job().to_dict()
         schema = json.loads((ROOT / "schemas" / "job.schema.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(job["schema_version"], "1.0")
+        self.assertEqual(job["schema_version"], "1.1")
         self.assertEqual(set(job), set(schema["required"]))
         self.assertFalse(schema["additionalProperties"])
         self.assertIn("unknown", schema["properties"]["mexico_eligibility"]["enum"])
+        self.assertEqual(job["travel_requirement"], "unknown")
+        self.assertEqual(job["rotating_shifts_requirement"], "unknown")
         self.assertIsNone(job["salary"])
 
     def test_canonical_url_removes_tracking_but_keeps_job_identifier(self):
@@ -56,6 +58,27 @@ class JobContractTests(unittest.TestCase):
         item["collection_run_id"] = "fixture-run"
         item["expires_at"] = 123456789
         self.assertEqual(job_from_dict(item), original)
+
+    def test_older_public_job_defaults_new_requirement_fields_to_unknown(self):
+        original = example_job()
+        legacy_item = original.to_dict()
+        legacy_item["schema_version"] = "1.0"
+        legacy_item.pop("travel_requirement", None)
+        legacy_item.pop("rotating_shifts_requirement", None)
+
+        self.assertEqual(job_from_dict(legacy_item), original)
+        legacy_item["travel_requirement"] = "not_required"
+        self.assertEqual(job_from_dict(legacy_item).travel_requirement, "unknown")
+
+    def test_current_public_job_requires_condition_fields(self):
+        item = example_job().to_dict()
+        item.pop("travel_requirement")
+        with self.assertRaises(ValueError):
+            job_from_dict(item)
+
+    def test_requirement_status_must_be_a_known_value(self):
+        with self.assertRaises(ValueError):
+            replace(example_job(), travel_requirement="maybe")
 
 
 if __name__ == "__main__":

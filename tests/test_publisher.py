@@ -159,9 +159,14 @@ class PublisherTests(unittest.TestCase):
                                            "salary_currency": "MXN", "salary_interval": "month",
                                            "salary_basis": "net"}, "alec")
         self.assertEqual(net_policy.salary_basis, "net")
+        conditions_policy, _ = _policy_from_dict({**valid, "travel_accepted": False,
+                                                  "rotating_shifts_accepted": False}, "alec")
+        self.assertFalse(conditions_policy.travel_accepted)
+        self.assertFalse(conditions_policy.rotating_shifts_accepted)
         for overrides in ({"technologies": "python"}, {"eligible_countries": ["US"]},
                           {"application_mode": "AUTO_SUBMIT"}, {"unknown_filter": "anything"},
-                          {"prepare_threshold": 50}, {"salary_basis": "after_tax_guess"}):
+                          {"prepare_threshold": 50}, {"salary_basis": "after_tax_guess"},
+                          {"travel_accepted": "false"}, {"rotating_shifts_accepted": 0}):
             with self.subTest(overrides=overrides), self.assertRaises(ValueError):
                 _policy_from_dict({**valid, **overrides}, "alec")
 

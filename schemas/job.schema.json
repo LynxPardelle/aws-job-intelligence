@@ -1,14 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/aji/schemas/job.schema.json",
-  "title": "AWS Job Intelligence public job v1.0",
+  "title": "AWS Job Intelligence public job v1.1",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "job_id", "source", "board", "external_id", "company", "title", "description",
     "location", "modality", "mexico_eligibility", "seniority", "salary",
     "source_url", "apply_url", "published_at", "updated_at", "status",
-    "feed_url", "retrieved_at", "schema_version"
+    "feed_url", "retrieved_at", "schema_version", "travel_requirement",
+    "rotating_shifts_requirement"
   ],
   "properties": {
     "job_id": {"type": "string", "minLength": 1},
@@ -21,6 +22,8 @@
     "location": {"type": ["string", "null"]},
     "modality": {"enum": ["remote", "hybrid", "onsite", "unknown"]},
     "mexico_eligibility": {"enum": ["eligible", "ineligible", "unknown"]},
+    "travel_requirement": {"enum": ["required", "not_required", "unknown"]},
+    "rotating_shifts_requirement": {"enum": ["required", "not_required", "unknown"]},
     "seniority": {"type": ["string", "null"]},
     "salary": {
       "anyOf": [
@@ -44,6 +47,6 @@
     "status": {"enum": ["open", "closed", "unknown"]},
     "feed_url": {"type": "string", "format": "uri", "pattern": "^https://"},
     "retrieved_at": {"type": "string", "format": "date-time"},
-    "schema_version": {"const": "1.0"}
+    "schema_version": {"const": "1.1"}
   }
 }

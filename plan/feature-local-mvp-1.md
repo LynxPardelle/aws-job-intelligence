@@ -115,6 +115,7 @@ El pull con Boto3 y lock condicional está codificado para Alec. Los recursos AW
 | TASK-037 | Con los criterios privados confirmados por Alec, revisar términos de cada board, completar política y fuentes apagadas, probar filtros/volumen y presentar diff/costo para aprobación de activación. | En curso | 2026-10-18 |
 | TASK-038 | Auditar historial, metadatos y archivos seguidos; cambiar el repositorio a público y verificarlo por API sin publicar datos privados. | ✅ | 2026-10-18 |
 | TASK-039 | Mantener un mínimo neto como condición de revisión cuando el feed sólo publica cifras sin base neta; probarlo con fixtures ficticios. | ✅ local | 2026-10-18 |
+| TASK-040 | Versionar vacantes v1.1 con estados de viajes/turnos, conservar `unknown` para anuncios sin evidencia y migrar objetos públicos v1.0 previos al leerlos. | ✅ local | 2026-10-18 |
 
 ## 3. Alternatives
 

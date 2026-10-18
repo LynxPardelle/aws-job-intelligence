@@ -1,6 +1,6 @@
 """Versioned public job data. Candidate information does not belong here."""
 
-from dataclasses import asdict, dataclass, fields
+from dataclasses import MISSING, asdict, dataclass, fields
 from typing import Literal
 
 
@@ -33,7 +33,16 @@ class Job:
     status: Literal["open", "closed", "unknown"]
     feed_url: str
     retrieved_at: str
-    schema_version: str = "1.0"
+    schema_version: str = "1.1"
+    travel_requirement: Literal["required", "not_required", "unknown"] = "unknown"
+    rotating_shifts_requirement: Literal["required", "not_required", "unknown"] = "unknown"
+
+    def __post_init__(self) -> None:
+        valid = {"required", "not_required", "unknown"}
+        if self.schema_version != "1.1":
+            raise ValueError("unsupported public job version")
+        if self.travel_requirement not in valid or self.rotating_shifts_requirement not in valid:
+            raise ValueError("invalid job requirement status")
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -41,9 +50,17 @@ class Job:
 
 def job_from_dict(item: dict) -> Job:
     """Rebuild a public Job from a DynamoDB item without its index/TTL fields."""
-    if not isinstance(item, dict) or item.get("schema_version") != "1.0":
+    if not isinstance(item, dict) or item.get("schema_version") not in {"1.0", "1.1"}:
         raise ValueError("unsupported public job")
-    data = {field.name: item[field.name] for field in fields(Job)}
+    legacy = item["schema_version"] == "1.0"
+    if not legacy and ("travel_requirement" not in item or "rotating_shifts_requirement" not in item):
+        raise ValueError("current public job is missing requirement status")
+    data = {field.name: item[field.name] if field.default is MISSING else
+            item.get(field.name, field.default) for field in fields(Job)}
+    if legacy:
+        data["schema_version"] = "1.1"
+        data["travel_requirement"] = "unknown"
+        data["rotating_shifts_requirement"] = "unknown"
     raw_salary = data["salary"]
     if raw_salary is not None:
         data["salary"] = Salary(

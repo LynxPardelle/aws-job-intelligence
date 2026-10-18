@@ -9,6 +9,8 @@
   "salary_currency": null,
   "salary_interval": "year",
   "salary_basis": "reported",
+  "travel_accepted": true,
+  "rotating_shifts_accepted": true,
   "excluded_companies": [],
   "shortlist_threshold": 70,
   "prepare_threshold": 85,

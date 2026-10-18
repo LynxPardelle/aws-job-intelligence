@@ -82,6 +82,33 @@ class MatcherTests(unittest.TestCase):
         self.assertIn("net_salary_unverified", result.unknowns)
         self.assertNotIn("below_salary_minimum", result.reasons)
 
+    def test_unverified_travel_and_shift_terms_require_review(self):
+        job = replace(example_job(), mexico_eligibility="eligible")
+        policy = replace(POLICY, travel_accepted=False, rotating_shifts_accepted=False)
+
+        result = match_job(job, policy, now="2026-10-13T12:00:00Z")
+
+        self.assertEqual(result.decision, "review")
+        self.assertIn("travel_requirement", result.unknowns)
+        self.assertIn("rotating_shifts_requirement", result.unknowns)
+
+    def test_verified_incompatible_conditions_exclude_specific_job(self):
+        job = replace(example_job(), mexico_eligibility="eligible",
+                      travel_requirement="required", rotating_shifts_requirement="not_required")
+        policy = replace(POLICY, travel_accepted=False, rotating_shifts_accepted=False)
+
+        result = match_job(job, policy, now="2026-10-13T12:00:00Z")
+
+        self.assertEqual(result.decision, "exclude")
+        self.assertIn("travel_required", result.reasons)
+        self.assertNotIn("rotating_shifts_requirement", result.unknowns)
+        eligible = replace(job, travel_requirement="not_required")
+        self.assertEqual(match_job(eligible, policy, now="2026-10-13T12:00:00Z").decision,
+                         "shortlist")
+        shifts_required = replace(eligible, rotating_shifts_requirement="required")
+        self.assertIn("rotating_shifts_required",
+                      match_job(shifts_required, policy, now="2026-10-13T12:00:00Z").reasons)
+
     def test_closed_or_incompatible_modality_excludes(self):
         job = replace(example_job(), mexico_eligibility="eligible")
 

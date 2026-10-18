@@ -22,7 +22,7 @@ def _policy_from_dict(raw: dict, candidate_id: str) -> tuple[SearchPolicy, int]:
                     "allowed_modalities", "eligible_countries", "minimum_salary",
                     "salary_currency", "salary_interval", "salary_basis", "excluded_companies",
                     "shortlist_threshold", "prepare_threshold", "max_jobs_per_day",
-                    "application_mode"}
+                    "application_mode", "travel_accepted", "rotating_shifts_accepted"}
     if set(raw) - allowed_keys:
         raise ValueError("unsupported search policy field")
     if raw.get("eligible_countries", ["MX"]) != ["MX"]:
@@ -51,6 +51,8 @@ def _policy_from_dict(raw: dict, candidate_id: str) -> tuple[SearchPolicy, int]:
         shortlist_threshold=threshold,
         salary_interval=raw.get("salary_interval", "year"),
         salary_basis=raw.get("salary_basis", "reported"),
+        travel_accepted=raw.get("travel_accepted", True),
+        rotating_shifts_accepted=raw.get("rotating_shifts_accepted", True),
         roles=terms("roles"),
         excluded_companies=terms("excluded_companies"),
         prepare_threshold=prepare,

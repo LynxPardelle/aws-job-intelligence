@@ -60,10 +60,11 @@ La [política de ejemplo](../../config/search-policy.example.json) es un esquema
 | **P9 Umbral de preparación** | Un valor igual o superior al de shortlist, o «decidir más tarde» | Se valida y guarda, pero **todavía no decide qué CV generar**. No lo trataré como control activo. |
 | **P10 Tipo de contrato e idioma** | Tiempo completo, parcial, contractor, temporal; inglés/español u otros | No son filtros actuales. Aunque Ashby publica `employmentType`, el adaptador no lo conserva en el contrato interno. Se puede especificar como requisito para implementar antes de activar. |
 | **P11 Vigencia** | Sólo últimos 7/14/30 días; o cualquier anuncio aún activo | La fecha participa en el score de calidad hasta 30 días, pero no existe un límite duro configurable por edad. |
+| **P12 Viajes y turnos** | Aceptar o rechazar viajes y turnos rotativos | La política admite ambas restricciones. Cada vacante tiene estado `required`, `not_required` o `unknown`; `required` se excluye cuando no se acepta y `unknown` va a revisión. Los conectores actuales dejan ambos estados en `unknown` hasta comprobar el anuncio. |
 
 **Tratamiento de datos faltantes (E):** el comportamiento actual es `review` cuando falta elegibilidad mexicana, salario exigido, modalidad o seniority filtrado. Excluir todo lo desconocido es posible como cambio, pero puede dejar cero resultados; inferir elegibilidad desde ubicación o etiqueta remota no es aceptable. Esto es una conclusión del [matcher](../../src/aji/matcher.py) y de los [adaptadores](../../src/aji/connectors.py), no una garantía del proveedor ATS.
 
-Las preferencias confirmadas se guardan en `private/alec/`, fuera de Git. Quedan por precisar la cuota diaria y, si se quiere acotar el score, tecnologías imprescindibles/deseables y niveles aceptados. Las condiciones de viajes y turnos requieren evidencia por oferta; no existe un campo estructurado para inferir su ausencia. No se usarán CVs de otro candidato.
+Las preferencias confirmadas se guardan en `private/alec/`, fuera de Git. Quedan por precisar la cuota diaria y, si se quiere acotar el score, tecnologías imprescindibles/deseables y niveles aceptados. Las condiciones de viajes y turnos tienen campos estructurados, pero los conectores no infieren su ausencia por silencio del anuncio; requieren evidencia por oferta. No se usarán CVs de otro candidato.
 
 ## Operación, automatización y costos: decisiones posteriores
 

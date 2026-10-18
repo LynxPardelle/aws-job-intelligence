@@ -19,6 +19,8 @@ class SearchPolicy:
     shortlist_threshold: int
     salary_interval: str = "year"
     salary_basis: str = "reported"
+    travel_accepted: bool = True
+    rotating_shifts_accepted: bool = True
     roles: tuple[str, ...] = ()
     excluded_companies: tuple[str, ...] = ()
     prepare_threshold: int | None = None
@@ -30,6 +32,8 @@ class SearchPolicy:
             raise ValueError("salary minimum requires currency")
         if self.salary_basis not in {"reported", "net"}:
             raise ValueError("invalid salary basis")
+        if type(self.travel_accepted) is not bool or type(self.rotating_shifts_accepted) is not bool:
+            raise ValueError("invalid travel or shift preference")
         if self.prepare_threshold is not None and not self.shortlist_threshold <= self.prepare_threshold <= 100:
             raise ValueError("invalid preparation threshold")
 
@@ -79,6 +83,15 @@ def match_job(job: Job, policy: SearchPolicy, now: str) -> MatchResult:
         reasons.append("incompatible_role")
     if job.company.casefold() in {company.casefold() for company in policy.excluded_companies}:
         reasons.append("excluded_company")
+
+    for accepted, requirement, label in (
+        (policy.travel_accepted, job.travel_requirement, "travel"),
+        (policy.rotating_shifts_accepted, job.rotating_shifts_requirement, "rotating_shifts"),
+    ):
+        if not accepted and requirement == "required":
+            reasons.append(f"{label}_required")
+        elif not accepted and requirement == "unknown":
+            unknowns.append(f"{label}_requirement")
 
     modality_match = not policy.allowed_modalities or job.modality in policy.allowed_modalities
     if job.modality == "unknown" and policy.allowed_modalities:
