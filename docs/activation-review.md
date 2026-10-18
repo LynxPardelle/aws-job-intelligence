@@ -27,7 +27,9 @@ Fecha: 2026-10-14. Especificación principal: plan maestro v3 en `private/specif
 
 La política privada necesita roles, tecnologías, seniority, modalidad, compensación mínima y moneda si aplica, empresas excluidas, umbrales y máximo diario. Elegibilidad desde México sin confirmar permanece `unknown`; el modo es `PREPARE`. El ejemplo sin datos personales está en `config/search-policy.example.json`. Para fuentes se necesitan empresa, ATS, identificador de board, URL oficial y confirmación de que la lectura automatizada está permitida; el ejemplo está en `config/sources.example.yaml`.
 
-El segundo equipo y `aji-hector-dev` esperan el handoff posterior. El código está en un [repositorio privado de GitHub](https://github.com/LynxPardelle/aws-job-intelligence); el segundo equipo necesitará acceso aprobado. Los perfiles reales, CVs y cualquier postulación requieren consentimiento de cada titular y autorización específica por vacante y portal. `AUTO_SUBMIT` permanece desactivado.
+Actualización 2026-10-18: los criterios personales recibidos están en `private/alec/`; aún falta fijar una cuota operativa y comprobar por oferta condiciones no estructuradas. El matcher local admite `salary_basis=net` y deja salarios netos no verificados en revisión. Esta mejora todavía no se desplegó en AWS.
+
+El segundo equipo y `aji-hector-dev` esperan el handoff posterior. El código está en un [repositorio público de GitHub](https://github.com/LynxPardelle/aws-job-intelligence); el segundo equipo necesitará sus propios permisos AWS, Drive y Codex. Los perfiles reales, CVs y cualquier postulación requieren consentimiento de cada titular y autorización específica por vacante y portal. `AUTO_SUBMIT` permanece desactivado.
 
 ## Costos y cobertura
 

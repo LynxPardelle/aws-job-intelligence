@@ -8,6 +8,7 @@ eligible_countries: [MX]
 minimum_salary: null
 salary_currency: null
 salary_interval: year
+salary_basis: reported
 excluded_companies: []
 shortlist_threshold: 70
 prepare_threshold: 85

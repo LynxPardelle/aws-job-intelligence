@@ -2,6 +2,8 @@
 
 Revisión: **2026-10-14**. Este catálogo contiene sólo información pública de empresas y vacantes. El análisis de los CVs de Alec y cualquier preferencia propuesta están en `private/`, fuera de Git. No constituye una lista de fuentes activas ni una autorización para consultar feeds de forma recurrente, activar AWS o postularse.
 
+Actualización de anuncios **2026-10-18**: Utility Profit sigue indicando remoto mundial, México preferido y contrato independiente, sin cifra salarial concreta. Caylent indica viajes ocasionales y posibles turnos rotativos en **Cloud Senior Engineer**; **Senior Cloud Architect** también menciona viajes ocasionales. Factored anuncia trabajo remoto en LATAM y un retiro anual, sin aclarar si exige viajar. Cobre indica LATAM sin confirmar en ese anuncio modalidad remota ni contratación desde México. Estos datos describen vacantes concretas; ninguna empresa se elimina del catálogo por las condiciones de una sola vacante.
+
 ## Puestos observados
 
 | Empresa / board Greenhouse | Puesto público de ejemplo | Ubicación y condición relevante | Estado para el proyecto |

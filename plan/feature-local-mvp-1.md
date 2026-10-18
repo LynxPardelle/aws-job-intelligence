@@ -112,7 +112,9 @@ El pull con Boto3 y lock condicional está codificado para Alec. Los recursos AW
 | TASK-034 | Verificar que la automatización nativa de Codex Desktop genera un resumen visible en Remote después de aprobar su operación diaria. | | |
 | TASK-035 | Aplicar F2 a los dos CVs distintos más recientes de Alec en Drive; guardar comparación y brechas de evidencia sólo en `private/`, y publicar un catálogo de boards sin datos personales. | ✅ | 2026-10-14 |
 | TASK-036 | Asignar alertas Gmail al conector de Codex por candidato; documentar identidad, datos mínimos y separación de AWS. Probar lectura y Remote cuando esté disponible/conectado. | Parcial: diseño | 2026-10-14 |
-| TASK-037 | Tras selección de Alec, revisar términos de cada board, preparar política privada y fuentes apagadas, probar filtros/volumen y presentar diff/costo para aprobación de activación. | | |
+| TASK-037 | Con los criterios privados confirmados por Alec, revisar términos de cada board, completar política y fuentes apagadas, probar filtros/volumen y presentar diff/costo para aprobación de activación. | En curso | 2026-10-18 |
+| TASK-038 | Auditar historial, metadatos y archivos seguidos; cambiar el repositorio a público y verificarlo por API sin publicar datos privados. | ✅ | 2026-10-18 |
+| TASK-039 | Mantener un mínimo neto como condición de revisión cuando el feed sólo publica cifras sin base neta; probarlo con fixtures ficticios. | ✅ local | 2026-10-18 |
 
 ## 3. Alternatives
 

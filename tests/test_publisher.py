@@ -155,9 +155,13 @@ class PublisherTests(unittest.TestCase):
         self.assertEqual(policy.excluded_companies, ("Example Corp",))
         self.assertEqual(policy.prepare_threshold, 85)
         self.assertEqual(quota, 10)
+        net_policy, _ = _policy_from_dict({**valid, "minimum_salary": 6500,
+                                           "salary_currency": "MXN", "salary_interval": "month",
+                                           "salary_basis": "net"}, "alec")
+        self.assertEqual(net_policy.salary_basis, "net")
         for overrides in ({"technologies": "python"}, {"eligible_countries": ["US"]},
                           {"application_mode": "AUTO_SUBMIT"}, {"unknown_filter": "anything"},
-                          {"prepare_threshold": 50}):
+                          {"prepare_threshold": 50}, {"salary_basis": "after_tax_guess"}):
             with self.subTest(overrides=overrides), self.assertRaises(ValueError):
                 _policy_from_dict({**valid, **overrides}, "alec")
 

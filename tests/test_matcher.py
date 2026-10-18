@@ -68,6 +68,20 @@ class MatcherTests(unittest.TestCase):
         self.assertEqual(result.decision, "exclude")
         self.assertIn("below_salary_minimum", result.reasons)
 
+    def test_reported_monthly_amount_does_not_prove_net_income(self):
+        job = replace(example_job(), mexico_eligibility="eligible",
+                      salary=replace(example_job().salary, currency="EUR", interval="month",
+                                     minimum=8000, maximum=10000))
+        net_policy = replace(POLICY, minimum_salary=6500, salary_currency="EUR",
+                             salary_interval="month", salary_basis="net")
+
+        result = match_job(job, net_policy, now="2026-10-13T12:00:00Z")
+
+        self.assertEqual(result.decision, "review")
+        self.assertEqual(result.components["salary"], 0)
+        self.assertIn("net_salary_unverified", result.unknowns)
+        self.assertNotIn("below_salary_minimum", result.reasons)
+
     def test_closed_or_incompatible_modality_excludes(self):
         job = replace(example_job(), mexico_eligibility="eligible")
 

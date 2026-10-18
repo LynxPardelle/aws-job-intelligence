@@ -20,7 +20,7 @@ def _policy_from_dict(raw: dict, candidate_id: str) -> tuple[SearchPolicy, int]:
         raise ValueError("policy belongs to another candidate")
     allowed_keys = {"candidate_id", "roles", "technologies", "allowed_seniority",
                     "allowed_modalities", "eligible_countries", "minimum_salary",
-                    "salary_currency", "salary_interval", "excluded_companies",
+                    "salary_currency", "salary_interval", "salary_basis", "excluded_companies",
                     "shortlist_threshold", "prepare_threshold", "max_jobs_per_day",
                     "application_mode"}
     if set(raw) - allowed_keys:
@@ -50,6 +50,7 @@ def _policy_from_dict(raw: dict, candidate_id: str) -> tuple[SearchPolicy, int]:
         salary_currency=raw.get("salary_currency"),
         shortlist_threshold=threshold,
         salary_interval=raw.get("salary_interval", "year"),
+        salary_basis=raw.get("salary_basis", "reported"),
         roles=terms("roles"),
         excluded_companies=terms("excluded_companies"),
         prepare_threshold=prepare,

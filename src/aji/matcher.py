@@ -18,6 +18,7 @@ class SearchPolicy:
     salary_currency: str | None
     shortlist_threshold: int
     salary_interval: str = "year"
+    salary_basis: str = "reported"
     roles: tuple[str, ...] = ()
     excluded_companies: tuple[str, ...] = ()
     prepare_threshold: int | None = None
@@ -27,6 +28,8 @@ class SearchPolicy:
             raise ValueError("invalid search policy")
         if self.minimum_salary is not None and (self.minimum_salary < 0 or not self.salary_currency):
             raise ValueError("salary minimum requires currency")
+        if self.salary_basis not in {"reported", "net"}:
+            raise ValueError("invalid salary basis")
         if self.prepare_threshold is not None and not self.shortlist_threshold <= self.prepare_threshold <= 100:
             raise ValueError("invalid preparation threshold")
 
@@ -108,6 +111,8 @@ def match_job(job: Job, policy: SearchPolicy, now: str) -> MatchResult:
         _annual_interval(policy.salary_interval), "1" + _annual_interval(policy.salary_interval)
     }:
         unknowns.append("salary_comparability")
+    elif policy.salary_basis == "net":
+        unknowns.append("net_salary_unverified")
     elif job.salary.maximum < policy.minimum_salary:
         reasons.append("below_salary_minimum")
     elif job.salary.minimum < policy.minimum_salary:

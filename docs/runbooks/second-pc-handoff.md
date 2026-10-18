@@ -7,7 +7,7 @@ Estado: **pendiente**. El usuario indicó completar primero AWS y este equipo; n
 1. Stacks compartido y Alec revisados y, con aprobación, desplegados; costos y alertas observados.
 2. Collector y lote privado de Alec probados con fuentes autorizadas y sin postulaciones.
 3. Identidad y permisos de Héctor acordados con su titular. No reutilizar el perfil `default` ni la clave de esta computadora.
-4. Código y documentación transferibles desde el [repositorio privado](https://github.com/LynxPardelle/aws-job-intelligence); confirmar acceso del titular del segundo equipo antes del handoff.
+4. Código y documentación transferibles desde el [repositorio público](https://github.com/LynxPardelle/aws-job-intelligence); confirmar identidad, acceso privado y permisos propios del titular del segundo equipo antes del handoff.
 
 ## Trabajo del segundo equipo
 
