@@ -116,6 +116,11 @@ El pull con Boto3 y lock condicional está codificado para Alec. Los recursos AW
 | TASK-038 | Auditar historial, metadatos y archivos seguidos; cambiar el repositorio a público y verificarlo por API sin publicar datos privados. | ✅ | 2026-10-18 |
 | TASK-039 | Mantener un mínimo neto como condición de revisión cuando el feed sólo publica cifras sin base neta; probarlo con fixtures ficticios. | ✅ local | 2026-10-18 |
 | TASK-040 | Versionar vacantes v1.1 con estados de viajes/turnos, conservar `unknown` para anuncios sin evidencia y migrar objetos públicos v1.0 previos al leerlos. | ✅ local | 2026-10-18 |
+| TASK-041 | Con cuota del lote confirmada en 10 y aprobación expresa, desplegar sólo código de Collector y Publisher, comprobar diff posterior, flags y Scheduler. | ✅ | 2026-10-18 |
+| TASK-042 | Evaluar automatización diaria completa, distinguir cuotas de lectura/preparación/envío y documentar requisitos de portales, Gmail, perfil y Remote. | ✅ revisión | 2026-10-18 |
+| TASK-043 | Conectar pull a generación de paquetes desde perfil real aprobado; implementar estados recuperables, límites independientes y pruebas de fallos/duplicados. | | |
+| TASK-044 | Probar tarea Codex Desktop de vista previa y Gmail de Alec en este PC; validar resumen en Remote antes de claim o envíos. | | |
+| TASK-045 | Evaluar por portal un mecanismo de envío permitido, autorización específica revocable, respuestas completas, recibos e idempotencia; no activar `AUTO_SUBMIT` sin aprobación de candidaturas reales. | | |
 
 ## 3. Alternatives
 
@@ -128,7 +133,7 @@ El pull con Boto3 y lock condicional está codificado para Alec. Los recursos AW
 - **DEP-001**: Python 3.11+ para Fase 1; ya existe Python 3.13.15. La demo PDF usa `requirements-dev.txt` con ReportLab, pypdf y tzdata en Windows.
 - **DEP-002**: Node.js y npm para CDK v2; ya existen Node 24.21.0 y npm 11.19.0.
 - **DEP-003**: Dependencias CDK fijadas en `infra/package-lock.json`; instalación local mediante `npm ci` antes de síntesis.
-- **DEP-004**: El perfil administrador `default` de este PC está autorizado como origen; el rol temporal de Alec está desplegado y se probó mediante STS. La política privada de búsqueda de Alec y el segundo PC permanecen pendientes.
+- **DEP-004**: El perfil administrador `default` de este PC está autorizado como origen; el rol temporal de Alec está desplegado y se probó mediante STS. La cuota de lote es 10; la política operativa completa, fuentes y el segundo PC permanecen pendientes.
 - **DEP-005**: Perfil profesional verificado y aprobado por cada titular, pendiente para CVs reales.
 
 ## 5. Files

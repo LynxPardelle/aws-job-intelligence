@@ -2,7 +2,7 @@
 
 Investigación al **2026-10-14**. Alcance: Alec y este PC; Héctor y el segundo equipo esperan el handoff. Especificación principal: plan maestro v3 en `private/specification/`. Este documento presenta decisiones, no activa servicios ni autoriza postulaciones. Puedes responder por códigos, en varios mensajes y sin completar todo de una vez. No envíes claves, contraseñas, tokens ni CVs al repositorio. **Actualización F2:** se revisaron los dos CVs distintos más recientes de Alec y se documentó un [catálogo público de boards candidatos](f2-public-board-candidates.md); el análisis personal queda en `private/`. El correo de alertas se asignó a Codex según [ADR-003](../architecture/adr-003-codex-gmail-alerts.md).
 
-**Actualización 2026-10-18:** el titular confirmó los criterios de búsqueda y las empresas de interés; el detalle personal está sólo en `private/alec/`. La tabla siguiente se conserva como referencia de opciones y límites técnicos. La activación de fuentes, AWS y candidaturas sigue pendiente de sus aprobaciones respectivas.
+**Actualización 2026-10-18:** el titular confirmó los criterios de búsqueda, las empresas de interés y `max_jobs_per_day=10`; el detalle personal está sólo en `private/alec/`. La actualización de código de dos Lambdas ya se desplegó con Scheduler y flags apagados. La tabla siguiente se conserva como referencia de opciones y límites técnicos. La activación de fuentes y cualquier candidatura siguen pendientes de aprobaciones separadas.
 
 ## Lo que ya está decidido
 
@@ -64,7 +64,7 @@ La [política de ejemplo](../../config/search-policy.example.json) es un esquema
 
 **Tratamiento de datos faltantes (E):** el comportamiento actual es `review` cuando falta elegibilidad mexicana, salario exigido, modalidad o seniority filtrado. Excluir todo lo desconocido es posible como cambio, pero puede dejar cero resultados; inferir elegibilidad desde ubicación o etiqueta remota no es aceptable. Esto es una conclusión del [matcher](../../src/aji/matcher.py) y de los [adaptadores](../../src/aji/connectors.py), no una garantía del proveedor ATS.
 
-Las preferencias confirmadas se guardan en `private/alec/`, fuera de Git. Quedan por precisar la cuota diaria y, si se quiere acotar el score, tecnologías imprescindibles/deseables y niveles aceptados. Las condiciones de viajes y turnos tienen campos estructurados, pero los conectores no infieren su ausencia por silencio del anuncio; requieren evidencia por oferta. No se usarán CVs de otro candidato.
+Las preferencias confirmadas se guardan en `private/alec/`, fuera de Git. La cuota de vacantes publicadas por día es 10; quedan por precisar límites de consultas, CVs y envíos, y, si se quiere acotar el score, tecnologías imprescindibles/deseables y niveles aceptados. Las condiciones de viajes y turnos tienen campos estructurados, pero los conectores no infieren su ausencia por silencio del anuncio; requieren evidencia por oferta. No se usarán CVs de otro candidato.
 
 ## Operación, automatización y costos: decisiones posteriores
 
@@ -85,7 +85,7 @@ La retención, el informe Remote y el uso de correo deben definirse por candidat
 | Código | Opciones | Requisito antes de usar datos reales |
 | --- | --- | --- |
 | **R1 Perfil profesional** | Sólo búsqueda; preparar CV tras validar perfil; no permitir CV automático | Para CV real: `verified-profile.json` privado, cada afirmación vinculada a documento y referencia, fecha de validación y permiso de reutilización aprobado por Alec. No inventar títulos, fechas, métricas ni certificaciones. |
-| **R2 Modo de candidatura** | `PREPARE` (paquete para revisión); `ASSISTED` (rellenar sin enviar, requiere diseño y prueba por portal); `AUTO_SUBMIT` (fuera del MVP) | La implementación actual sólo acepta `PREPARE` y no tiene cliente de envío. `ASSISTED` requeriría términos y adaptador del portal, revisión humana de preguntas y adjuntos. `AUTO_SUBMIT` requeriría consentimiento específico, revocable, por candidato, vacante y portal, más acuse verificable. |
+| **R2 Modo de candidatura** | `PREPARE` (paquete para revisión); `ASSISTED` (rellenar sin enviar, requiere diseño y prueba por portal); `AUTO_SUBMIT` (fuera del MVP) | La implementación actual sólo acepta `PREPARE` y no tiene cliente de envío. `ASSISTED` requeriría términos y adaptador del portal, revisión humana de preguntas y adjuntos. `AUTO_SUBMIT` requeriría consentimiento específico, revocable, por candidato, vacante y portal, más acuse verificable. Véase la [revisión de automatización](../automation-readiness.md). |
 | **R3 Envío real** | Ninguno; autorizar individualmente después de revisar cada paquete | No se pide ahora. Ni una aprobación general de AWS ni un score sustituyen la autorización concreta de postulación. [Greenhouse](https://docs.greenhouse.io/job-board.html) y [Lever](https://github.com/lever/postings-api) separan sus APIs de lectura y de aplicación; [Indeed prohíbe el uso no autorizado de bots para Apply](https://www.indeed.com/legal?hl=en_US). |
 
 ## Secuencia que propongo
