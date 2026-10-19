@@ -1,0 +1,10 @@
+{
+  "sources": [
+    { "source": "greenhouse", "board": "utilityprofit", "company": "Utility Profit", "enabled": true }
+  ],
+  "maxSources": 3,
+  "collectionEnabled": true,
+  "collectionScheduleEnabled": false,
+  "publicationEnabled": true,
+  "publicationScheduleEnabled": false
+}

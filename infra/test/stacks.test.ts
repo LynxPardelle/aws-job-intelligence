@@ -190,3 +190,81 @@ test('Alec access role can trust the existing same-account IAM user', () => {
   const rendered = JSON.stringify(Template.fromStack(alec).toJSON());
   assert.ok(rendered.includes('arn:aws:iam::111111111111:user/example-admin'));
 });
+
+test('pilot enables only named feed functions while both schedules remain disabled', () => {
+  const app = new App();
+  const shared = new SharedStack(app, 'aji-shared-dev', {
+    env: environment,
+    sources: [{ source: 'greenhouse', board: 'utilityprofit', company: 'Utility Profit', enabled: true }],
+    collectionEnabled: true,
+    maxSources: 3,
+  } as any);
+  const alec = new CandidateStack(app, 'aji-alec-dev', {
+    env: environment, candidateId: 'alec',
+    principalArn: 'arn:aws:iam::111111111111:user/example-admin',
+    publicJobsTable: shared.jobsTable,
+    publicationEnabled: true,
+  } as any);
+  Template.fromStack(shared).hasResourceProperties('AWS::Lambda::Function', {
+    Environment: { Variables: {
+      AJI_ENABLED: 'true', AJI_MAX_SOURCES: '3',
+      AJI_SOURCES_JSON: '[{"source":"greenhouse","board":"utilityprofit","company":"Utility Profit","enabled":true}]',
+      AJI_JOBS_TABLE: Match.anyValue(),
+    } },
+  });
+  Template.fromStack(shared).hasResourceProperties('AWS::Scheduler::Schedule', { State: 'DISABLED' });
+  Template.fromStack(alec).hasResourceProperties('AWS::Lambda::Function', {
+    Environment: { Variables: {
+      AJI_CANDIDATE_ID: 'alec', AJI_PUBLISH_ENABLED: 'true',
+      AJI_POLICY_KEY: 'config/search-policy.json',
+      AJI_PRIVATE_BUCKET: Match.anyValue(), AJI_PUBLIC_TABLE: Match.anyValue(),
+    } },
+  });
+  Template.fromStack(alec).hasResourceProperties('AWS::Scheduler::Schedule', { State: 'DISABLED' });
+});
+
+test('schedules require enabled functions and validated sources', () => {
+  const app = new App();
+  assert.throws(() => new SharedStack(app, 'empty-sources', {
+    env: environment, collectionEnabled: true,
+  } as any), /source/);
+  assert.throws(() => new SharedStack(app, 'bad-board', {
+    env: environment, collectionEnabled: true,
+    sources: [{ source: 'greenhouse', board: '../other', company: 'Example', enabled: true }],
+  } as any), /source/);
+  assert.throws(() => new SharedStack(app, 'schedule-without-function', {
+    env: environment,
+    sources: [{ source: 'greenhouse', board: 'utilityprofit', company: 'Utility Profit', enabled: true }],
+    collectionScheduleEnabled: true,
+  } as any), /collection/);
+  const shared = new SharedStack(app, 'valid-shared', { env: environment });
+  assert.throws(() => new CandidateStack(app, 'schedule-without-publisher', {
+    env: environment, candidateId: 'alec',
+    principalArn: 'arn:aws:iam::111111111111:user/example-admin',
+    publicJobsTable: shared.jobsTable,
+    publicationScheduleEnabled: true,
+  } as any), /publication/);
+});
+
+test('approved daily mode enables only Alec and shared schedules', () => {
+  const app = new App();
+  const shared = new SharedStack(app, 'aji-shared-dev', {
+    env: environment,
+    sources: [{ source: 'greenhouse', board: 'utilityprofit', company: 'Utility Profit', enabled: true }],
+    maxSources: 1, collectionEnabled: true, collectionScheduleEnabled: true,
+  });
+  const alec = new CandidateStack(app, 'aji-alec-dev', {
+    env: environment, candidateId: 'alec',
+    principalArn: 'arn:aws:iam::111111111111:user/example-admin',
+    publicJobsTable: shared.jobsTable,
+    publicationEnabled: true, publicationScheduleEnabled: true,
+  });
+  Template.fromStack(shared).hasResourceProperties('AWS::Scheduler::Schedule', {
+    Name: 'aji-collect-dev', State: 'ENABLED',
+    ScheduleExpression: 'cron(0 8 * * ? *)', ScheduleExpressionTimezone: 'America/Mexico_City',
+  });
+  Template.fromStack(alec).hasResourceProperties('AWS::Scheduler::Schedule', {
+    Name: 'aji-alec-publish-dev', State: 'ENABLED',
+    ScheduleExpression: 'cron(30 8 * * ? *)', ScheduleExpressionTimezone: 'America/Mexico_City',
+  });
+});

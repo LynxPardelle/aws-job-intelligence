@@ -5,6 +5,7 @@ import unittest
 from dataclasses import replace
 from pathlib import Path
 from pypdf import PdfReader
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
@@ -63,6 +64,17 @@ class PackageTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             with self.assertRaises(ValueError):
                 prepare_application(job, match, profile, Path(directory))
+
+    def test_pdf_failure_leaves_no_partial_package_and_retry_succeeds(self):
+        job, match, profile = inputs()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with patch("aji.application_package._write_pdf", side_effect=OSError("disk full")):
+                with self.assertRaises(OSError):
+                    prepare_application(job, match, profile, root)
+            self.assertEqual(list(root.rglob("resume-tailored.md")), [])
+            self.assertEqual(list(root.rglob("resume-tailored.pdf")), [])
+            self.assertTrue(prepare_application(job, match, profile, root).exists())
 
 
 if __name__ == "__main__":

@@ -11,6 +11,10 @@ import { Construct } from 'constructs';
 
 export interface SharedStackProps extends StackProps {
   budgetEmail?: string;
+  sources?: Array<{ source: 'greenhouse' | 'lever' | 'ashby'; board: string; company: string; enabled: true }>;
+  maxSources?: number;
+  collectionEnabled?: boolean;
+  collectionScheduleEnabled?: boolean;
 }
 
 export class SharedStack extends Stack {
@@ -18,6 +22,22 @@ export class SharedStack extends Stack {
 
   constructor(scope: Construct, id: string, props: SharedStackProps) {
     super(scope, id, props);
+    const sources = props.sources ?? [];
+    const maxSources = props.maxSources ?? 10;
+    if (!Number.isInteger(maxSources) || maxSources < 1 || maxSources > 10 || sources.length > maxSources ||
+        sources.some(item => !item || !['greenhouse', 'lever', 'ashby'].includes(item.source) ||
+          !/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(item.board) ||
+          typeof item.company !== 'string' || !item.company.trim() || item.company.length > 120 ||
+          item.enabled !== true) ||
+        new Set(sources.map(item => `${item.source}:${item.board.toLowerCase()}`)).size !== sources.length) {
+      throw new Error('invalid collection source configuration');
+    }
+    if (props.collectionEnabled && sources.length === 0) {
+      throw new Error('collection source required before enabling');
+    }
+    if (props.collectionScheduleEnabled && !props.collectionEnabled) {
+      throw new Error('collection schedule requires enabled function');
+    }
     Tags.of(this).add('Project', 'AWSJobIntelligence');
     Tags.of(this).add('Candidate', 'shared');
     Tags.of(this).add('Environment', 'dev');
@@ -67,9 +87,9 @@ export class SharedStack extends Stack {
       role: collectorRole,
       environment: {
         AJI_JOBS_TABLE: this.jobsTable.tableName,
-        AJI_ENABLED: 'false',
-        AJI_MAX_SOURCES: '10',
-        AJI_SOURCES_JSON: '[]',
+        AJI_ENABLED: String(props.collectionEnabled === true),
+        AJI_MAX_SOURCES: String(maxSources),
+        AJI_SOURCES_JSON: JSON.stringify(sources),
       },
     });
 
@@ -84,7 +104,7 @@ export class SharedStack extends Stack {
       scheduleExpression: 'cron(0 8 * * ? *)',
       scheduleExpressionTimezone: 'America/Mexico_City',
       flexibleTimeWindow: { mode: 'OFF' },
-      state: 'DISABLED',
+      state: props.collectionScheduleEnabled ? 'ENABLED' : 'DISABLED',
       target: {
         arn: collector.functionArn,
         roleArn: invokeRole.roleArn,

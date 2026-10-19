@@ -108,19 +108,20 @@ El pull con Boto3 y lock condicional está codificado para Alec. Los recursos AW
 | TASK-030 | Publicar `main` en un repositorio privado de GitHub y verificar que `private/` y `applications/` siguen fuera de Git. | ✅ | 2026-10-14 |
 | TASK-031 | Con autorización, desplegar sólo el código del publicador de `aji-alec-dev`; volver a comprobar stacks, Scheduler y flags. | ✅ | 2026-10-14 |
 | TASK-032 | Con autorización, publicar un lote AWS ficticio sin sobrescribir datos previos; leerlo y adquirir el lock con el rol de Alec. | ✅ | 2026-10-14 |
-| TASK-033 | Recibir fuentes ATS permitidas y política de Alec aprobada; preparar diff, estimación y revisión de activación diaria de este PC. | | |
+| TASK-033 | Configurar fuentes ATS permitidas y política operativa privada de Alec; preparar diff, piloto y activación diaria de este PC. | ✅ piloto | 2026-10-18 |
 | TASK-034 | Verificar que la automatización nativa de Codex Desktop genera un resumen visible en Remote después de aprobar su operación diaria. | | |
 | TASK-035 | Aplicar F2 a los dos CVs distintos más recientes de Alec en Drive; guardar comparación y brechas de evidencia sólo en `private/`, y publicar un catálogo de boards sin datos personales. | ✅ | 2026-10-14 |
 | TASK-036 | Asignar alertas Gmail al conector de Codex por candidato; documentar identidad, datos mínimos y separación de AWS. Probar lectura y Remote cuando esté disponible/conectado. | Parcial: diseño | 2026-10-14 |
-| TASK-037 | Con los criterios privados confirmados por Alec, revisar términos de cada board, completar política y fuentes apagadas, probar filtros/volumen y presentar diff/costo para aprobación de activación. | En curso | 2026-10-18 |
+| TASK-037 | Con los criterios privados confirmados por Alec, revisar términos, completar política, probar filtros/volumen y activar el primer equipo con autorización. Caylent queda manual. | ✅ piloto | 2026-10-18 |
 | TASK-038 | Auditar historial, metadatos y archivos seguidos; cambiar el repositorio a público y verificarlo por API sin publicar datos privados. | ✅ | 2026-10-18 |
 | TASK-039 | Mantener un mínimo neto como condición de revisión cuando el feed sólo publica cifras sin base neta; probarlo con fixtures ficticios. | ✅ local | 2026-10-18 |
 | TASK-040 | Versionar vacantes v1.1 con estados de viajes/turnos, conservar `unknown` para anuncios sin evidencia y migrar objetos públicos v1.0 previos al leerlos. | ✅ local | 2026-10-18 |
 | TASK-041 | Con cuota del lote confirmada en 10 y aprobación expresa, desplegar sólo código de Collector y Publisher, comprobar diff posterior, flags y Scheduler. | ✅ | 2026-10-18 |
 | TASK-042 | Evaluar automatización diaria completa, distinguir cuotas de lectura/preparación/envío y documentar requisitos de portales, Gmail, perfil y Remote. | ✅ revisión | 2026-10-18 |
-| TASK-043 | Conectar pull a generación de paquetes desde perfil real aprobado; implementar estados recuperables, límites independientes y pruebas de fallos/duplicados. | | |
-| TASK-044 | Probar tarea Codex Desktop de vista previa y Gmail de Alec en este PC; validar resumen en Remote antes de claim o envíos. | | |
+| TASK-043 | Conectar pull a generación de paquetes desde perfil real aprobado; implementar estados recuperables, límites independientes y pruebas de fallos/duplicados. | Parcial: `--prepare` conectado, paquete atómico y cuota/umbral probados; falta perfil real y primera revisión | 2026-10-18 |
+| TASK-044 | Crear tarea Codex Desktop de vista previa; probar la primera ejecución programada y su visibilidad en Remote. Gmail se prueba cuando esté conectado. | Parcial: tarea creada, piloto manual probado | 2026-10-18 |
 | TASK-045 | Evaluar por portal un mecanismo de envío permitido, autorización específica revocable, respuestas completas, recibos e idempotencia; no activar `AUTO_SUBMIT` sin aprobación de candidaturas reales. | | |
+| TASK-046 | Observar las primeras corridas de AWS 08:00/08:30 y Codex 09:00, medir costo atribuido y general, revisar fallos y calidad de las diez vacantes. | | |
 
 ## 3. Alternatives
 
@@ -133,7 +134,7 @@ El pull con Boto3 y lock condicional está codificado para Alec. Los recursos AW
 - **DEP-001**: Python 3.11+ para Fase 1; ya existe Python 3.13.15. La demo PDF usa `requirements-dev.txt` con ReportLab, pypdf y tzdata en Windows.
 - **DEP-002**: Node.js y npm para CDK v2; ya existen Node 24.21.0 y npm 11.19.0.
 - **DEP-003**: Dependencias CDK fijadas en `infra/package-lock.json`; instalación local mediante `npm ci` antes de síntesis.
-- **DEP-004**: El perfil administrador `default` de este PC está autorizado como origen; el rol temporal de Alec está desplegado y se probó mediante STS. La cuota de lote es 10; la política operativa completa, fuentes y el segundo PC permanecen pendientes.
+- **DEP-004**: El perfil administrador `default` de este PC está autorizado como origen; el rol temporal de Alec está desplegado y se probó mediante STS. Cuota de lote 10, política privada y tres fuentes activas para este PC. El segundo PC permanece pendiente.
 - **DEP-005**: Perfil profesional verificado y aprobado por cada titular, pendiente para CVs reales.
 
 ## 5. Files
@@ -160,7 +161,7 @@ El pull con Boto3 y lock condicional está codificado para Alec. Los recursos AW
 - **RISK-001**: El usuario IAM administrador actual permite más acceso del debido. Su uso como origen en este PC fue autorizado; una sesión asumida de Alec limita las operaciones ordinarias del proceso, pero el administrador puede saltarse ese límite.
 - **RISK-002**: Fuentes ATS pueden cambiar sus esquemas o términos. Versionar fixtures y validar cada fuente antes de activarla.
 - **RISK-003**: La ausencia de datos de salario o elegibilidad puede reducir matches; se prefiere revisión a una inferencia falsa.
-- **ASSUMPTION-001**: `us-east-1` fue confirmada por el usuario como región para este primer equipo; no constituye aprobación de despliegue.
+- **ASSUMPTION-001**: `us-east-1` fue confirmada por el usuario como región para este primer equipo; los despliegues y la activación posteriores constan en `docs/progress.md`.
 - **ASSUMPTION-002**: Los dos candidatos operarán equipos propios y aprobarán sus perfiles y políticas de forma individual.
 
 ## 8. Related Specifications / Further Reading

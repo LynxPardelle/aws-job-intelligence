@@ -2,6 +2,7 @@
 
 import json
 import re
+import tempfile
 from dataclasses import asdict
 from pathlib import Path
 from xml.sax.saxutils import escape
@@ -62,11 +63,29 @@ def prepare_application(job: Job, match: MatchResult, profile: dict, output_root
         raise ValueError("job eligibility or status unverified")
     claims = _verified_claims(profile, match.matched_technologies)
 
-    safe_job_id = re.sub(r"[^A-Za-z0-9._-]", "_", job.job_id)
+    safe_job_id = re.sub(r"[^A-Za-z0-9_-]", "_", job.job_id)
     output = Path(output_root) / candidate_id / safe_job_id
     if output.exists():
         raise FileExistsError("application package already exists")
-    output.mkdir(parents=True)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    staging = Path(tempfile.mkdtemp(prefix=".pending-", dir=output.parent))
+    try:
+        _write_package(staging, job, match, profile, claims)
+        if output.exists():
+            raise FileExistsError("application package already exists")
+        staging.rename(output)
+    finally:
+        if staging.exists():
+            for artifact in staging.iterdir():
+                if not artifact.is_file():
+                    raise OSError("unexpected nested staging artifact")
+                artifact.unlink()
+            staging.rmdir()
+    return output
+
+
+def _write_package(output: Path, job: Job, match: MatchResult,
+                   profile: dict, claims: list[dict]) -> None:
     claim_lines = "\n".join(f"- {claim['text']}" for claim in claims)
     (output / "resume-tailored.md").write_text(
         f"# {profile['display_name']}\n\nTarget role: {job.title}\n\n## Verified experience\n\n{claim_lines}\n",
@@ -81,7 +100,7 @@ def prepare_application(job: Job, match: MatchResult, profile: dict, output_root
     )
     (output / "match-analysis.json").write_text(json.dumps(asdict(match), indent=2), encoding="utf-8")
     evidence_map = {
-        "candidate_id": candidate_id, "job_id": job.job_id,
+        "candidate_id": profile["candidate_id"], "job_id": job.job_id,
         "claims": [{"claim_id": claim["claim_id"], "text": claim["text"],
                     **claim["evidence"]} for claim in claims],
     }
@@ -104,4 +123,3 @@ def prepare_application(job: Job, match: MatchResult, profile: dict, output_root
         "- [ ] Obtain separate authorization before any real submission.\n",
         encoding="utf-8",
     )
-    return output

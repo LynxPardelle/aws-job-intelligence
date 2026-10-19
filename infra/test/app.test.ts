@@ -22,3 +22,28 @@ test('first-PC synth omits the project budget until its cost tag is active', () 
   assert.ok(Object.values(template.Resources).every(resource =>
     resource.Type !== 'AWS::Budgets::Budget'));
 });
+
+test('explicit activation file configures functions without starting schedules', () => {
+  const infraDir = path.resolve(__dirname, '../..');
+  const activationFile = path.join(infraDir, 'test/fixtures/activation.example.json');
+  const result = spawnSync(process.execPath, [
+    path.join(infraDir, 'node_modules/aws-cdk/bin/cdk'),
+    'synth', 'aji-shared-dev', 'aji-alec-dev',
+    '-c', 'account=111111111111', '-c', 'region=us-east-1',
+    '-c', 'alecPrincipalArn=arn:aws:iam::111111111111:user/example-admin',
+    '-c', `activationConfigPath=${activationFile}`, '--quiet',
+  ], { cwd: infraDir, encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  const shared = JSON.parse(fs.readFileSync(
+    path.join(infraDir, 'cdk.out/aji-shared-dev.template.json'), 'utf8',
+  )) as { Resources: Record<string, { Type: string; Properties: any }> };
+  const alec = JSON.parse(fs.readFileSync(
+    path.join(infraDir, 'cdk.out/aji-alec-dev.template.json'), 'utf8',
+  )) as { Resources: Record<string, { Type: string; Properties: any }> };
+  const resource = (template: typeof shared, type: string) =>
+    Object.values(template.Resources).find(value => value.Type === type)?.Properties;
+  assert.equal(resource(shared, 'AWS::Lambda::Function')?.Environment?.Variables?.AJI_ENABLED, 'true');
+  assert.equal(resource(shared, 'AWS::Scheduler::Schedule')?.State, 'DISABLED');
+  assert.equal(resource(alec, 'AWS::Lambda::Function')?.Environment?.Variables?.AJI_PUBLISH_ENABLED, 'true');
+  assert.equal(resource(alec, 'AWS::Scheduler::Schedule')?.State, 'DISABLED');
+});

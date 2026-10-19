@@ -1,6 +1,8 @@
 """The live pull reports absent or invalid batches without leaking AWS details."""
 
 import importlib.util
+import json
+import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -48,6 +50,39 @@ class PullErrorTests(unittest.TestCase):
         self.assertEqual(summary["error_code"], "BATCH_AWS_ERROR")
         self.assertNotIn("private-bucket", str(summary))
         self.assertNotIn("secret-value", str(summary))
+
+    def test_preparation_inputs_require_approved_private_profile(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            folder = root / "private" / "alec"
+            folder.mkdir(parents=True)
+            (folder / "search-policy.active.json").write_text(
+                json.dumps({"candidate_id": "alec", "prepare_threshold": 85,
+                            "application_mode": "PREPARE"}), encoding="utf-8")
+            with self.assertRaises(ValueError):
+                MODULE.load_preparation_inputs(root)
+            (folder / "verified-profile.json").write_text(json.dumps({
+                "schema_version": "1.0", "candidate_id": "alec", "display_name": "Example",
+                "approved_by_holder": False, "validated_at": "2026-10-18",
+                "claims": []}), encoding="utf-8")
+            with self.assertRaises(ValueError):
+                MODULE.load_preparation_inputs(root)
+            (folder / "verified-profile.json").write_text(json.dumps({
+                "schema_version": "1.0", "candidate_id": "alec", "display_name": "Example",
+                "approved_by_holder": True, "validated_at": "2026-10-18",
+                "claims": []}), encoding="utf-8")
+            with self.assertRaises(ValueError):
+                MODULE.load_preparation_inputs(root)
+            (folder / "verified-profile.json").write_text(json.dumps({
+                "schema_version": "1.0", "candidate_id": "alec", "display_name": "Example",
+                "approved_by_holder": True, "validated_at": "2026-10-18",
+                "claims": [{"claim_id": "example", "text": "Example claim", "keywords": ["python"],
+                            "evidence": {"source_document": "fixture://example",
+                                         "reference": "one", "verified_at": "2026-10-18",
+                                         "reuse_approved": True}}]}), encoding="utf-8")
+            profile, threshold = MODULE.load_preparation_inputs(root)
+            self.assertEqual(profile["candidate_id"], "alec")
+            self.assertEqual(threshold, 85)
 
 
 if __name__ == "__main__":

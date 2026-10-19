@@ -6,7 +6,7 @@ Investigación al **2026-10-14**. Alcance: Alec y este PC; Héctor y el segundo 
 
 ## Lo que ya está decidido
 
-- Región `us-east-1`, perfil administrador `default` como origen de este PC y rol temporal `aji-alec-access-dev` para las lecturas ordinarias. Stacks shared y Alec desplegados, presupuesto de proyecto de USD 5/mes con alertas reales a USD 3/5, y publicador v1.1. Los dos Scheduler y flags de ejecución siguen desactivados. El lote ficticio probó lectura y lock, sin CV ni envío. Véanse [estado](../progress.md) y [revisión AWS](../activation-review.md).
+- Región `us-east-1`, perfil administrador `default` como origen de este PC y rol temporal `aji-alec-access-dev` para las lecturas ordinarias. Stacks shared y Alec desplegados, presupuesto de proyecto de USD 5/mes con alertas reales a USD 3/5, y publicador v1.1. **Actualización 2026-10-18:** los dos Scheduler y flags de ejecución ya están activos, con tres fuentes y cuota de diez vacantes; el piloto real produjo diez oportunidades en revisión y cero CVs/envíos. Esta guía conserva opciones históricas; consultar el [estado vigente](../progress.md) y la [guía de uso](../runbooks/first-pc-user-guide.md).
 - `AUTO_SUBMIT` queda apagado. El modo aceptado por la política actual es `PREPARE`; ningún score, CV ni formulario rellenado autoriza una postulación. El perfil y los documentos profesionales de Alec requerirán aprobación del propio titular y evidencia por afirmación.
 - No usaré datos de Héctor ni accederé a sus documentos desde esta identidad. La copia del plan maestro, las preferencias, CVs y artefactos reales van en `private/` o `applications/`, ambos ignorados por Git.
 

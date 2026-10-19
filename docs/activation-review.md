@@ -1,8 +1,17 @@
 # Revisión previa a la operación del primer equipo
 
-Actualizado: 2026-10-18. Especificación principal: plan maestro v3 en `private/specification/`. Las acciones A y B fueron autorizadas y ejecutadas el 2026-10-14. El 2026-10-18 se autorizó y ejecutó una actualización adicional de dos assets Lambda. No se habilitaron funciones, programaciones ni postulaciones.
+Actualizado: 2026-10-18. Especificación principal: plan maestro v3 en `private/specification/`. Las acciones A y B fueron autorizadas el 2026-10-14 y la actualización de código el 2026-10-18. Posteriormente el titular autorizó completar la operación de este equipo: se activaron fuentes, flags y ambos Scheduler de AWS, más la tarea local de Codex. **No se habilitó el envío de postulaciones.**
 
-## Estado comprobado
+## Activación verificada del primer equipo
+
+- Política privada de Alec y tres boards Greenhouse configurados: Utility Profit, Factored y Cobre. Caylent sigue en el catálogo, pero manual/alerta oficial por sus condiciones de acceso.
+- Diff de piloto: sólo entornos de dos Lambdas, sin IAM ni recursos nuevos. Ambos stacks terminaron `UPDATE_COMPLETE`. Invocaciones manuales: Collector `OK`, 36 vacantes; Publisher `READY`, diez. Pull con sesión asumida de Alec sin `--claim`: diez `review`, cero shortlist, cero CVs y cero postulaciones.
+- Diff de horarios: sólo dos Scheduler de `DISABLED` a `ENABLED`. Despliegue correcto, ambos horarios confirmados a las 08:00/08:30 `America/Mexico_City`, flags Lambda `true`. El diff posterior mostró cero diferencias.
+- Tarea Codex **AJI Alec — revisión diaria** creada a las 09:00 en este chat. La primera ejecución programada y su visibilidad en Remote quedan pendientes de observar. Presupuesto filtrado USD 5, avisos USD 3/5; el gasto atribuido consultado seguía en USD 0.00, sin probar cobertura futura.
+
+Los detalles de cuenta, correo, respuestas y configuración están sólo en `private/`. Véase la [guía de uso](runbooks/first-pc-user-guide.md). Las secciones siguientes conservan el historial previo a esta activación.
+
+## Estado comprobado antes de la activación
 
 - `aji-shared-dev` y `aji-alec-dev` están desplegados en `us-east-1`; los Scheduler y flags Lambda siguen desactivados. `Project` está activa como etiqueta de costos y `aji-project-dev` tiene avisos de gasto real USD 3/5 al correo privado confirmado.
 - El código local y el publicador desplegado usan el manifiesto privado v1.1: verifica por separado los checksums de `jobs.json` y `matches.json`. También limita la lectura de cada objeto de lote a 32 MB y de la política privada a 64 KB; el pull resume errores AWS sin exponer el mensaje remoto.
@@ -17,7 +26,7 @@ Actualizado: 2026-10-18. Especificación principal: plan maestro v3 en `private/
 - Se publicó una única vacante inventada del fixture Ashby, sin política profesional real, CV ni consultas a portales. S3 contiene `manifest.json`, `jobs.json` y `matches.json` cifrados con AES256; el prefijo `batches/` tiene caducidad a 30 días.
 - La vista previa y el primer `--claim` mediante sesión asumida de `aji-alec-access-dev` devolvieron `READY`; el segundo `--claim` devolvió `ALREADY_PROCESSED`. El lock se confirmó en DynamoDB. El resumen informó 1 vacante para revisión, 0 CVs y 0 postulaciones.
 
-## Estado de decisiones
+## Estado de decisiones antes de la activación
 
 | Paso | Acción propuesta | Efecto y límite | Información pendiente |
 | --- | --- | --- | --- |
@@ -30,7 +39,7 @@ La política privada ya recoge las preferencias confirmadas y el máximo diario 
 
 Actualización 2026-10-18: los criterios personales recibidos están en `private/alec/`; la cuota del lote ya está fijada en 10, pero faltan cuotas de lectura y envío. El matcher admite `salary_basis=net` y el contrato de vacante v1.1 representa viajes y turnos como `required/not_required/unknown`; deja las incógnitas en revisión. El código correspondiente está desplegado, con ejecución desactivada. Véase la [revisión de automatización](automation-readiness.md).
 
-El `cdk diff --no-change-set` de 2026-10-18, tras verificar la identidad AWS, mostró **dos cambios de código Lambda**: Collector en `aji-shared-dev` y Publisher en `aji-alec-dev`. No mostró cambios de IAM, Scheduler, Budgets ni recursos nuevos. El detalle quedó en `private/approved-code-diff-2026-10-18.txt`, fuera de Git. Una primera lectura anterior falló por la CA de Node y se repitió con `NODE_OPTIONS=--use-system-ca`. Tras la aprobación del usuario se publicó sólo ese código; `private/approved-code-post-deploy-diff-2026-10-18.txt` muestra cero diferencias. La activación de fuentes y ejecuciones reales requiere una decisión posterior y separada.
+El `cdk diff --no-change-set` previo a la activación mostró **dos cambios de código Lambda**: Collector en `aji-shared-dev` y Publisher en `aji-alec-dev`. No mostró cambios de IAM, Scheduler, Budgets ni recursos nuevos. El detalle quedó en `private/approved-code-diff-2026-10-18.txt`, fuera de Git. Una primera lectura anterior falló por la CA de Node y se repitió con `NODE_OPTIONS=--use-system-ca`. Tras la aprobación del usuario se publicó sólo ese código; `private/approved-code-post-deploy-diff-2026-10-18.txt` mostró cero diferencias. La activación posterior se documenta al inicio de este archivo.
 
 El segundo equipo y `aji-hector-dev` esperan el handoff posterior. El código está en un [repositorio público de GitHub](https://github.com/LynxPardelle/aws-job-intelligence); el segundo equipo necesitará sus propios permisos AWS, Drive y Codex. Los perfiles reales, CVs y cualquier postulación requieren consentimiento de cada titular y autorización específica por vacante y portal. `AUTO_SUBMIT` permanece desactivado.
 

@@ -13,11 +13,16 @@ export interface CandidateStackProps extends StackProps {
   candidateId: 'alec' | 'hector';
   principalArn: string;
   publicJobsTable: dynamodb.ITable;
+  publicationEnabled?: boolean;
+  publicationScheduleEnabled?: boolean;
 }
 
 export class CandidateStack extends Stack {
   constructor(scope: Construct, id: string, props: CandidateStackProps) {
     super(scope, id, props);
+    if (props.publicationScheduleEnabled && !props.publicationEnabled) {
+      throw new Error('publication schedule requires enabled function');
+    }
     if (!/^arn:aws:iam::\d{12}:(?:role|user)\/[A-Za-z0-9+=,.@_/-]+$/.test(props.principalArn)) {
       throw new Error('candidate principal must be an IAM role or user ARN');
     }
@@ -106,7 +111,7 @@ export class CandidateStack extends Stack {
       role: publisherRole,
       environment: {
         AJI_CANDIDATE_ID: props.candidateId,
-        AJI_PUBLISH_ENABLED: 'false',
+        AJI_PUBLISH_ENABLED: String(props.publicationEnabled === true),
         AJI_POLICY_KEY: 'config/search-policy.json',
         AJI_PRIVATE_BUCKET: bucket.bucketName,
         AJI_PUBLIC_TABLE: props.publicJobsTable.tableName,
@@ -123,7 +128,7 @@ export class CandidateStack extends Stack {
       scheduleExpression: 'cron(30 8 * * ? *)',
       scheduleExpressionTimezone: 'America/Mexico_City',
       flexibleTimeWindow: { mode: 'OFF' },
-      state: 'DISABLED',
+      state: props.publicationScheduleEnabled ? 'ENABLED' : 'DISABLED',
       target: {
         arn: publisher.functionArn,
         roleArn: invokeRole.roleArn,
