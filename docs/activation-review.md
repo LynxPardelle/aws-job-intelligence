@@ -8,6 +8,7 @@ Actualizado: 2026-10-18. Especificación principal: plan maestro v3 en `private/
 - Diff de piloto: sólo entornos de dos Lambdas, sin IAM ni recursos nuevos. Ambos stacks terminaron `UPDATE_COMPLETE`. Invocaciones manuales: Collector `OK`, 36 vacantes; Publisher `READY`, diez. Pull con sesión asumida de Alec sin `--claim`: diez `review`, cero shortlist, cero CVs y cero postulaciones.
 - Diff de horarios: sólo dos Scheduler de `DISABLED` a `ENABLED`. Despliegue correcto, ambos horarios confirmados a las 08:00/08:30 `America/Mexico_City`, flags Lambda `true`. El diff posterior mostró cero diferencias.
 - Tarea Codex **AJI Alec — revisión diaria** creada a las 09:00 en este chat. La primera ejecución programada y su visibilidad en Remote quedan pendientes de observar. Presupuesto filtrado USD 5, avisos USD 3/5; el gasto atribuido consultado seguía en USD 0.00, sin probar cobertura futura.
+- Después del commit público `f873366`, un diff mostró sólo dos assets de código Lambda del nuevo flujo local; se publicaron en ambos stacks. CloudFormation informó `UPDATE_COMPLETE`, el diff posterior cero diferencias y Scheduler/flags siguieron activos. La corrida real no se repitió ese día.
 
 Los detalles de cuenta, correo, respuestas y configuración están sólo en `private/`. Véase la [guía de uso](runbooks/first-pc-user-guide.md). Las secciones siguientes conservan el historial previo a esta activación.
 
