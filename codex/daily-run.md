@@ -1,6 +1,6 @@
 # Corrida diaria de Alec en Codex Desktop
 
-Estado verificado el 2026-10-18: la tarea nativa **AJI Alec — revisión diaria** está activa a las 09:00 `America/Mexico_City` en este chat. AWS recolecta a las 08:00 y publica a las 08:30. La primera ejecución automática de Codex y su visibilidad en Remote quedan por observar; la vista previa manual del lote real ya pasó.
+Estado verificado el 2026-10-19: la tarea nativa **AJI Alec — revisión diaria** se ejecutó a las 09:00 `America/Mexico_City` en este chat. AWS registró invocaciones a las 08:00 y 08:30, y publicó un lote `READY` del día con diez vacantes. La visibilidad en la interfaz Remote queda por confirmar por el titular.
 
 1. En este PC ejecutar `scripts/check-aws-local.ps1`. El perfil `default` aprobado es únicamente el origen; `scripts/run-alec-pull.py` asume una sesión de `aji-alec-access-dev` y verifica su identidad. No exportar claves.
 2. Ejecutar `scripts/run-alec-pull.py` **sin `--claim`**. El pull valida titular, fecha local, vigencia, `READY`, IDs y checksums de vacantes y scoring. No toma un lock, no escribe CVs y no reutiliza lotes antiguos.

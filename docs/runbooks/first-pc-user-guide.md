@@ -1,6 +1,6 @@
 # Primer equipo: guía de uso de Alec
 
-Estado verificado el 2026-10-18: la búsqueda diaria en AWS y la revisión diaria de Codex están activas. Sólo se preparan oportunidades para revisar; no hay envío automático ni postulaciones confirmadas. El segundo equipo espera el handoff.
+Estado verificado el 2026-10-19: la búsqueda diaria en AWS y la revisión diaria de Codex se ejecutaron en sus horarios. Sólo se preparan oportunidades para revisar; no hay envío automático ni postulaciones confirmadas. El segundo equipo espera el handoff.
 
 ## Qué ocurre cada día
 
@@ -10,7 +10,7 @@ Estado verificado el 2026-10-18: la búsqueda diaria en AWS y la revisión diari
 | 08:30 | `aji-alec-publish-dev` en AWS | Publica hasta diez vacantes en el bucket privado de Alec. Sólo un lote íntegro se marca `READY`. |
 | 09:00 | Tarea local **AJI Alec — revisión diaria** de Codex | Comprueba identidad AWS y lee una vista previa con el rol temporal de Alec. Informa vacantes y bloqueos en esta conversación, visible desde Codex Remote. No toma el lock. |
 
-El PC debe estar encendido, con Codex Desktop operativo y este chat disponible para la tarea local de las 09:00. Las dos tareas de AWS funcionan independientemente del PC. La primera ejecución automática de Codex y su visibilidad en Remote se comprobarán en la siguiente corrida; el piloto manual ya devolvió 36 vacantes leídas y un lote de diez, todas en revisión.
+El PC debe estar encendido, con Codex Desktop operativo y este chat disponible para la tarea local de las 09:00. Las dos tareas de AWS funcionan independientemente del PC. El 19 de octubre se observaron ambas invocaciones programadas y el heartbeat local leyó un lote `READY` de diez vacantes, todas en revisión. El titular aún debe confirmar que ve este reporte en la interfaz Remote.
 
 ## Usarlo ahora
 

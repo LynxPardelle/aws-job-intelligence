@@ -1,12 +1,12 @@
 # Automatización diaria: alcance real
 
-Actualizado el 2026-10-18. El plan maestro privado v3 rige este diseño. Sólo Alec y este PC están activos; los datos profesionales permanecen fuera de Git.
+Actualizado el 2026-10-19. El plan maestro privado v3 rige este diseño. Sólo Alec y este PC están activos; los datos profesionales permanecen fuera de Git.
 
 | Etapa | Estado actual | Siguiente requisito |
 | --- | --- | --- |
-| Recolección AWS | **Activa**, 08:00 Ciudad de México. Tres boards públicos Greenhouse: Utility Profit, Factored y Cobre; máximo tres fuentes configuradas. Piloto manual: 36 vacantes escritas. | Observar fallos, calidad y costos de varias corridas. Caylent continúa como revisión manual/alerta oficial por sus condiciones. |
-| Publicación AWS | **Activa**, 08:30. Política privada de Alec, hasta diez vacantes por lote; piloto manual: diez publicadas. | Verificar la primera corrida programada y el gasto atribuido. |
-| Revisión Codex | Tarea local **AJI Alec — revisión diaria** activa a las 09:00; piloto de vista previa manual `READY`, diez en `review`, cero CVs y cero postulaciones. | Observar su primera ejecución automática y confirmar visibilidad en Remote con el PC encendido. |
+| Recolección AWS | **Activa**, 08:00 Ciudad de México. Tres boards públicos Greenhouse: Utility Profit, Factored y Cobre; máximo tres fuentes configuradas. Primera corrida programada observada el 19 de octubre: una invocación y cero errores. | Observar calidad y costos durante varias corridas. Caylent continúa como revisión manual/alerta oficial por sus condiciones. |
+| Publicación AWS | **Activa**, 08:30. Política privada de Alec, hasta diez vacantes por lote; primera corrida programada: `READY` con diez vacantes, una invocación y cero errores. | Vigilar gasto atribuido y continuidad. |
+| Revisión Codex | Tarea local **AJI Alec — revisión diaria** ejecutada a las 09:00; lote del 19 de octubre: diez en `review`, cero CVs y cero postulaciones. | Confirmar visibilidad en Remote y continuidad con el PC encendido. |
 | Preparación de CV | Perfil privado de Alec aprobado con 36 afirmaciones rastreables a los dos PDF; `run-alec-pull.py --prepare` aplica umbral y cuota de tres y escribe paquetes atómicamente. Un perfil amplio se resume en un máximo de 12 afirmaciones por CV y tres por carta. La tarea de las 09:00 no ejecuta esta opción. | Vacante con condiciones suficientes y revisión de un primer paquete real antes de habilitarla en la tarea. |
 | Alertas Gmail | Diseño por candidato documentado, sin lector AWS. | Conectar el Gmail de Alec en Codex; el conector no está expuesto en este chat. |
 | Postulaciones | `AUTO_SUBMIT` apagado; no hay cliente de portal ni envíos reales. | Integración permitida, respuestas verificadas, autorización concreta por vacante y portal, recibo e idempotencia. |
