@@ -9,6 +9,16 @@
     "schema_version": {"const": "1.0"},
     "candidate_id": {"type": "string", "pattern": "^[a-z0-9_-]+$"},
     "display_name": {"type": "string", "minLength": 1},
+    "contact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["email", "phone", "location", "links"],
+      "properties": {
+        "email": {"type": "string", "minLength": 1, "maxLength": 250},
+        "phone": {"type": "string", "minLength": 1, "maxLength": 250},
+        "location": {"type": "string", "minLength": 1, "maxLength": 250},
+        "links": {"type": "array", "items": {"type": "string", "minLength": 1, "maxLength": 250}}
+      }
+    },
     "approved_by_holder": {"const": true},
     "validated_at": {"type": "string", "format": "date"},
     "claims": {

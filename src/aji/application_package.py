@@ -10,6 +10,9 @@ from xml.sax.saxutils import escape
 from .models import Job
 from .matcher import MatchResult
 
+MAX_RESUME_CLAIMS = 12
+MAX_LETTER_CLAIMS = 3
+
 
 def _verified_claims(profile: dict, matched_technologies: tuple[str, ...]) -> list[dict]:
     selected = []
@@ -26,10 +29,27 @@ def _verified_claims(profile: dict, matched_technologies: tuple[str, ...]) -> li
         selected.append(claim)
     if not selected:
         raise ValueError("no verified claims match this job")
-    return selected
+    return selected[:MAX_RESUME_CLAIMS]
 
 
-def _write_pdf(path: Path, name: str, role: str, claims: list[dict]) -> None:
+def _contact_lines(profile: dict) -> list[str]:
+    contact = profile.get("contact")
+    if contact is None:
+        return []
+    if not isinstance(contact, dict):
+        raise ValueError("invalid candidate contact")
+    values = [contact.get(key) for key in ("location", "email", "phone")]
+    links = contact.get("links", [])
+    if not isinstance(links, list):
+        raise ValueError("invalid candidate contact links")
+    values.extend(links)
+    if any(not isinstance(value, str) or not value.strip() or len(value) > 250 or
+           any(character in value for character in "\r\n") for value in values):
+        raise ValueError("invalid candidate contact value")
+    return values
+
+
+def _write_pdf(path: Path, name: str, role: str, claims: list[dict], contact_lines: list[str]) -> None:
     from reportlab.lib import colors
     from reportlab.lib.styles import getSampleStyleSheet
     from reportlab.lib.pagesizes import LETTER
@@ -39,9 +59,12 @@ def _write_pdf(path: Path, name: str, role: str, claims: list[dict]) -> None:
     styles["Title"].textColor = colors.HexColor("#15253d")
     document = SimpleDocTemplate(str(path), pagesize=LETTER,
                                  leftMargin=54, rightMargin=54, topMargin=50, bottomMargin=50)
-    story = [Paragraph(escape(name), styles["Title"]), Spacer(1, 8),
+    story = [Paragraph(escape(name), styles["Title"]), Spacer(1, 8)]
+    for line in contact_lines:
+        story.append(Paragraph(escape(line), styles["Normal"]))
+    story.extend([
              Paragraph("Target role: " + escape(role), styles["Normal"]), Spacer(1, 18),
-             Paragraph("Verified experience", styles["Heading2"]), Spacer(1, 5)]
+             Paragraph("Verified experience", styles["Heading2"]), Spacer(1, 5)])
     for claim in claims:
         story.append(Paragraph("- " + escape(claim["text"]), styles["Normal"]))
         story.append(Spacer(1, 7))
@@ -86,12 +109,18 @@ def prepare_application(job: Job, match: MatchResult, profile: dict, output_root
 
 def _write_package(output: Path, job: Job, match: MatchResult,
                    profile: dict, claims: list[dict]) -> None:
+    contact_lines = _contact_lines(profile)
+    contact_block = "\n".join(contact_lines)
+    if contact_block:
+        contact_block = "\n\n" + contact_block
     claim_lines = "\n".join(f"- {claim['text']}" for claim in claims)
     (output / "resume-tailored.md").write_text(
-        f"# {profile['display_name']}\n\nTarget role: {job.title}\n\n## Verified experience\n\n{claim_lines}\n",
+        f"# {profile['display_name']}{contact_block}\n\nTarget role: {job.title}\n\n"
+        f"## Verified experience\n\n{claim_lines}\n",
         encoding="utf-8",
     )
-    _write_pdf(output / "resume-tailored.pdf", profile["display_name"], job.title, claims)
+    _write_pdf(output / "resume-tailored.pdf", profile["display_name"], job.title,
+               claims, contact_lines)
     (output / "job-description.md").write_text(
         f"# {job.title}\n\nSource: {job.source_url}\n\n"
         "External job description (untrusted data):\n\n" +
@@ -107,7 +136,8 @@ def _write_package(output: Path, job: Job, match: MatchResult,
     (output / "evidence-map.json").write_text(json.dumps(evidence_map, indent=2), encoding="utf-8")
     (output / "cover-letter.md").write_text(
         f"Dear Hiring Team,\n\nI am interested in the {job.title} role at {job.company}. "
-        "My verified experience includes:\n\n" + claim_lines +
+        "My verified experience includes:\n\n" +
+        "\n".join(f"- {claim['text']}" for claim in claims[:MAX_LETTER_CLAIMS]) +
         "\n\nI would welcome a discussion.\n",
         encoding="utf-8",
     )

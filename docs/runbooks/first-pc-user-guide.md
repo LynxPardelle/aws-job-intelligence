@@ -33,9 +33,9 @@ Caylent permanece en el catálogo de interés, pero fuera de la recolección aut
 
 ## CVs y postulaciones
 
-Los dos CVs recientes de Alec ya se compararon en una nota privada. Aún falta que Alec confirme fechas, responsabilidades, métricas, tecnologías y permiso de reutilización de cada afirmación. Sólo entonces se puede crear `private/alec/verified-profile.json` y generar CVs reales. El generador local usa únicamente afirmaciones verificadas y deja los paquetes en `applications/`, fuera de Git. Por ahora el lote real produce **cero CVs**.
+Los dos CVs recientes de Alec fueron confirmados por él. El perfil `private/alec/verified-profile.json` contiene 36 afirmaciones con origen por PDF, página y línea; el contacto profesional queda también en privado. El generador selecciona hasta 12 afirmaciones pertinentes por CV y tres para la carta, con mapa de evidencia. Una prueba local con una oferta ficticia generó PDF de una página. El lote real de hoy produce **cero CVs** porque sus diez vacantes continúan en `review` por condiciones sin acreditar.
 
-Cuando exista ese perfil aprobado y alguna vacante sea `shortlist` con todas las condiciones verificadas, `scripts/run-alec-pull.py --prepare` podrá crear localmente hasta **tres** paquetes por día y sólo por encima del umbral privado. El comando se probó sin perfil real: devuelve `PROFILE_NOT_APPROVED` sin consultar AWS ni escribir CVs. No está habilitado en la tarea programada de las 09:00; primero se revisará un paquete real. La cuota tres es un límite técnico conservador y se puede ajustar por decisión posterior.
+Cuando alguna vacante sea `shortlist` con todas las condiciones verificadas, `scripts/run-alec-pull.py --prepare` podrá crear localmente hasta **tres** paquetes por día y sólo por encima del umbral privado. Con el perfil aprobado y el lote real de hoy devolvió `prepared: 0` y `confirmed_applications: 0`, sin tomar el lock. No está habilitado en la tarea programada de las 09:00; primero se revisará un paquete de una oferta real completa. La cuota tres es un límite técnico conservador y se puede ajustar por decisión posterior.
 
 Gmail se reservó para Codex, pero su conector no está disponible en este chat. Cuando esté conectado con la cuenta de Alec se probará lectura acotada de alertas; no se copiarán mensajes ni tokens a AWS.
 

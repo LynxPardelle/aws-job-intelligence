@@ -76,6 +76,47 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(list(root.rglob("resume-tailored.pdf")), [])
             self.assertTrue(prepare_application(job, match, profile, root).exists())
 
+    def test_large_approved_profile_produces_a_reviewable_resume(self):
+        job, match, profile = inputs()
+        profile["claims"] = [
+            {
+                "claim_id": f"claim-{index}",
+                "text": f"Verified Python achievement {index}.",
+                "keywords": ["python"],
+                "evidence": {
+                    "source_document": "fixture.pdf", "reference": f"page {index}",
+                    "verified_at": "2026-10-13", "reuse_approved": True,
+                },
+            }
+            for index in range(20)
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            output = prepare_application(job, match, profile, Path(directory))
+            mapping = json.loads((output / "evidence-map.json").read_text("utf-8"))
+            resume = (output / "resume-tailored.md").read_text("utf-8")
+            letter = (output / "cover-letter.md").read_text("utf-8")
+            self.assertEqual(len(mapping["claims"]), 12)
+            self.assertEqual(resume.count("Verified Python achievement"), 12)
+            self.assertEqual(letter.count("Verified Python achievement"), 3)
+            self.assertNotIn("Verified Python achievement 19.", resume)
+
+    def test_approved_contact_appears_in_both_resume_formats(self):
+        job, match, profile = inputs()
+        profile["contact"] = {
+            "email": "candidate@example.invalid",
+            "phone": "+52 55 0000 0000",
+            "location": "Mexico City, Mexico",
+            "links": ["https://example.invalid/portfolio"],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            output = prepare_application(job, match, profile, Path(directory))
+            resume = (output / "resume-tailored.md").read_text("utf-8")
+            pdf_text = "\n".join(page.extract_text() for page in PdfReader(output / "resume-tailored.pdf").pages)
+            for value in ("candidate@example.invalid", "+52 55 0000 0000", "Mexico City, Mexico",
+                          "https://example.invalid/portfolio"):
+                self.assertIn(value, resume)
+                self.assertIn(value, pdf_text)
+
 
 if __name__ == "__main__":
     unittest.main()
