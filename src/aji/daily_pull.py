@@ -22,7 +22,8 @@ def inspect_daily_batch(store, now: str, *, acquire_lock: bool = False) -> dict:
         opportunities.append({
             "job_id": job["job_id"], "title": job["title"], "company": job["company"],
             "source_url": job["source_url"], "decision": match["decision"],
-            "score": match["score"],
+            "score": match["score"], "salary": job.get("salary"),
+            "unknowns": match.get("unknowns", []), "reasons": match.get("reasons", []),
         })
 
     status = "READY"

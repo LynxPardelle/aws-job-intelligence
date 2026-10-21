@@ -82,6 +82,18 @@ class MatcherTests(unittest.TestCase):
         self.assertIn("net_salary_unverified", result.unknowns)
         self.assertNotIn("below_salary_minimum", result.reasons)
 
+    def test_explicit_net_salary_can_satisfy_net_minimum(self):
+        job = replace(example_job(), mexico_eligibility="eligible",
+                      salary=replace(example_job().salary, currency="MXN", interval="month",
+                                     minimum=100000, maximum=120000, basis="net"))
+        net_policy = replace(POLICY, minimum_salary=95000, salary_currency="MXN",
+                             salary_interval="month", salary_basis="net")
+
+        result = match_job(job, net_policy, now="2026-10-13T12:00:00Z")
+
+        self.assertEqual(result.decision, "shortlist")
+        self.assertEqual(result.components["salary"], 15)
+
     def test_unverified_travel_and_shift_terms_require_review(self):
         job = replace(example_job(), mexico_eligibility="eligible")
         policy = replace(POLICY, travel_accepted=False, rotating_shifts_accepted=False)

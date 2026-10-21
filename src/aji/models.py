@@ -10,6 +10,11 @@ class Salary:
     interval: str
     minimum: float | None
     maximum: float | None
+    basis: Literal["gross", "net", "contract", "unknown"] = "unknown"
+
+    def __post_init__(self) -> None:
+        if self.basis not in {"gross", "net", "contract", "unknown"}:
+            raise ValueError("invalid salary basis")
 
 
 @dataclass(frozen=True)
@@ -67,5 +72,6 @@ def job_from_dict(item: dict) -> Job:
             currency=raw_salary["currency"], interval=raw_salary["interval"],
             minimum=float(raw_salary["minimum"]) if raw_salary["minimum"] is not None else None,
             maximum=float(raw_salary["maximum"]) if raw_salary["maximum"] is not None else None,
+            basis=raw_salary.get("basis", "unknown"),
         )
     return Job(**data)

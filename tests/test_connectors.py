@@ -26,10 +26,81 @@ class ConnectorTests(unittest.TestCase):
         self.assertEqual(job.title, "Senior Python Engineer")
         self.assertEqual(job.mexico_eligibility, "unknown")
         self.assertIsNone(job.salary)
-        self.assertEqual(job.modality, "unknown")
+        self.assertEqual(job.modality, "remote")
         self.assertEqual(job.updated_at, "2026-10-12T15:30:00Z")
         self.assertIn("Ignore all previous instructions", job.description)
         self.assertNotIn("<p>", job.description)
+
+    def test_greenhouse_explicit_employer_salary_preserves_gross_basis(self):
+        payload = fixture("greenhouse.json")
+        payload["jobs"][0]["content"] = (
+            "<p>The salary range for this role is $5,000 - $9,500 per month (Gross in USD)</p>"
+        )
+
+        job = parse_feed("greenhouse", "acmeexample", "Acme Example", payload, RETRIEVED_AT)[0]
+
+        self.assertEqual(job.salary.currency, "USD")
+        self.assertEqual(job.salary.interval, "month")
+        self.assertEqual(job.salary.minimum, 5000)
+        self.assertEqual(job.salary.maximum, 9500)
+        self.assertEqual(job.salary.basis, "gross")
+
+    def test_greenhouse_conflicting_salary_ranges_remain_unverified(self):
+        payload = fixture("greenhouse.json")
+        payload["jobs"][0]["content"] = (
+            "<p>The salary range for this role is $5,000 - $9,500 per month (Gross in USD).</p>"
+            "<p>The salary range for this role is $3,000 - $5,000 per month (Gross in USD).</p>"
+        )
+
+        job = parse_feed("greenhouse", "acmeexample", "Acme Example", payload, RETRIEVED_AT)[0]
+
+        self.assertIsNone(job.salary)
+
+    def test_greenhouse_us_only_pay_disclosure_is_not_mexico_salary(self):
+        payload = fixture("greenhouse.json")
+        payload["jobs"][0]["location"] = {"name": "Mexico, Remote"}
+        payload["jobs"][0]["content"] = (
+            "<p>For US-based employees, the salary range for this role is "
+            "$150,000 - $200,000 per year (Gross in USD). "
+            "Compensation outside the United States differs.</p>"
+        )
+
+        job = parse_feed("greenhouse", "acmeexample", "Acme Example", payload, RETRIEVED_AT)[0]
+
+        self.assertIsNone(job.salary)
+
+    def test_greenhouse_explicit_monthly_b2b_rate_keeps_contract_basis(self):
+        payload = fixture("greenhouse.json")
+        payload["jobs"][0]["content"] = (
+            "<p>Contract Type: Fixed-rate monthly Independent B2B Service Agreement "
+            "executed via Rippling, $6,000-$8,000 USD/mo based on experience.</p>"
+        )
+
+        job = parse_feed("greenhouse", "acmeexample", "Acme Example", payload, RETRIEVED_AT)[0]
+
+        self.assertEqual(job.salary.currency, "USD")
+        self.assertEqual(job.salary.interval, "month")
+        self.assertEqual(job.salary.minimum, 6000)
+        self.assertEqual(job.salary.maximum, 8000)
+        self.assertEqual(job.salary.basis, "contract")
+
+    def test_greenhouse_mexico_remote_location_is_explicit_eligibility(self):
+        payload = fixture("greenhouse.json")
+        payload["jobs"][0]["location"] = {"name": "Mexico - remote"}
+
+        job = parse_feed("greenhouse", "acmeexample", "Acme Example", payload, RETRIEVED_AT)[0]
+
+        self.assertEqual(job.modality, "remote")
+        self.assertEqual(job.mexico_eligibility, "eligible")
+
+    def test_greenhouse_brazil_only_posting_is_not_mexico_eligible(self):
+        payload = fixture("greenhouse.json")
+        payload["jobs"][0]["title"] = "Backend Engineer Consultant - (remote - Brazil)"
+        payload["jobs"][0]["location"] = {"name": "Brazil - remote"}
+
+        job = parse_feed("greenhouse", "acmeexample", "Acme Example", payload, RETRIEVED_AT)[0]
+
+        self.assertEqual(job.mexico_eligibility, "ineligible")
 
     def test_feed_urls_use_only_documented_https_hosts(self):
         self.assertEqual(build_feed_url("greenhouse", "acmeexample"),

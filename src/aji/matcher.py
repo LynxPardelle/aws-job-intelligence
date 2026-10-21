@@ -124,7 +124,7 @@ def match_job(job: Job, policy: SearchPolicy, now: str) -> MatchResult:
         _annual_interval(policy.salary_interval), "1" + _annual_interval(policy.salary_interval)
     }:
         unknowns.append("salary_comparability")
-    elif policy.salary_basis == "net":
+    elif policy.salary_basis == "net" and job.salary.basis != "net":
         unknowns.append("net_salary_unverified")
     elif job.salary.maximum < policy.minimum_salary:
         reasons.append("below_salary_minimum")

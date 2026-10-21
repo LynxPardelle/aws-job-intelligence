@@ -8,11 +8,13 @@
 
 ## Límites de ejecución
 
-- Se permiten auditoría de solo lectura, edición local, pruebas locales y `cdk synth` local.
-- Pedir aprobación expresa antes de desplegar infraestructura, modificar IAM, activar servicios que generen gastos, destruir recursos o enviar postulaciones reales. La existencia de un perfil administrador no constituye autorización.
+- El titular autorizó continuar de forma autónoma la investigación de vacantes y sueldos, lectura acotada de su Gmail, edición y pruebas locales, publicación del código revisado en el repositorio público y operación ordinaria de los stacks **ya aprobados** de Alec en este equipo. No pedir otra aprobación para cada revisión diaria o corrección local.
+- Se permiten auditoría de solo lectura, edición local, pruebas locales, `cdk synth` y `cdk diff`. Una actualización de código de los stacks existentes o de fuentes públicas dentro del Collector ya activo puede continuar con esa autorización vigente sólo si las pruebas pasan, se mantiene la cuota y el presupuesto del proyecto y el diff confirma que no añade recursos, permisos IAM, programaciones ni servicios nuevos. Registrar el diff, resultado y rollback en `docs/progress.md`.
+- El modo local `PREPARE` puede ejecutarse automáticamente después de validar un lote `READY` del día: únicamente sobre `shortlist` sin condiciones desconocidas ni razones de exclusión, con perfil aprobado de Alec, umbral y cuota persistente de tres paquetes al día. Los borradores quedan en `applications/` para revisión; la preparación no autoriza comunicación ni envío.
+- Pedir aprobación expresa para infraestructura nueva, cambios IAM, activación o ampliación de servicios que generen gastos, destrucción de recursos y postulaciones reales. El perfil administrador por sí solo no autoriza esos cambios. El plan maestro exige consentimiento específico y revocable por candidato, vacante y portal antes de cualquier envío.
 - Mantener `AUTO_SUBMIT` desactivado. Un score, un CV generado o un formulario rellenado nunca autorizan un envío.
 - En este equipo, el usuario autorizó expresamente el perfil AWS `default` del usuario administrador existente. No copiar ni exportar su clave al repositorio. Para la futura corrida de Alec, usar una sesión asumida del rol `aji-alec-access-dev` si se despliega; el administrador de origen conserva sus privilegios.
-- Preparar primero este equipo y los stacks `aji-shared-dev` y `aji-alec-dev`. El equipo y stack de Héctor esperan al handoff posterior solicitado por el usuario.
+- Preparar primero este equipo y los stacks `aji-shared-dev` y `aji-alec-dev`. El titular confirmó que ve este reporte en Quick Remote el 2026-10-20. El handoff de Héctor queda en pausa por instrucción expresa del titular hasta que pida retomarlo tras otros cambios; no acceder a sus documentos ni preparar su equipo mientras tanto.
 - No desactivar salvaguardas de Codex.
 
 ## Datos y aislamiento

@@ -35,7 +35,8 @@
             "currency": {"type": "string", "minLength": 3, "maxLength": 3},
             "interval": {"type": "string", "minLength": 1},
             "minimum": {"type": ["number", "null"], "minimum": 0},
-            "maximum": {"type": ["number", "null"], "minimum": 0}
+            "maximum": {"type": ["number", "null"], "minimum": 0},
+            "basis": {"enum": ["gross", "net", "contract", "unknown"]}
           }
         }
       ]

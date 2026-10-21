@@ -48,6 +48,28 @@ class DailyPullTests(unittest.TestCase):
         self.assertEqual(summary["status"], "ALREADY_PROCESSED")
         self.assertEqual(store.lock_calls, 1)
 
+    def test_preview_exposes_public_salary_basis_and_review_gaps(self):
+        store = FakeStore()
+        load = store.load
+
+        def with_salary(now):
+            manifest, jobs, matches = load(now)
+            jobs[0]["salary"] = {"currency": "USD", "interval": "month",
+                                  "minimum": 5000, "maximum": 9500, "basis": "gross"}
+            matches[0]["unknowns"] = ["net_salary_unverified"]
+            matches[0]["reasons"] = ["salary_range_overlaps_minimum"]
+            return manifest, jobs, matches
+
+        store.load = with_salary
+        summary = inspect_daily_batch(store, "2026-10-13T15:00:00Z")
+
+        self.assertEqual(summary["opportunities"][0]["salary"],
+                         {"currency": "USD", "interval": "month",
+                          "minimum": 5000, "maximum": 9500, "basis": "gross"})
+        self.assertEqual(summary["opportunities"][0]["unknowns"], ["net_salary_unverified"])
+        self.assertEqual(summary["opportunities"][0]["reasons"],
+                         ["salary_range_overlaps_minimum"])
+
     def test_invalid_decision_fails_before_lock(self):
         store = FakeStore()
         load = store.load

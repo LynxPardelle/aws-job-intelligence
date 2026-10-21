@@ -1,6 +1,8 @@
 import sys
 import tempfile
 import unittest
+import sqlite3
+from contextlib import closing
 from dataclasses import asdict, replace
 from pathlib import Path
 
@@ -61,6 +63,52 @@ class DailyPreparationTests(unittest.TestCase):
                                          max_preparations=3, prepare_threshold=70)
             self.assertEqual(result["prepared"], 0)
             self.assertEqual(list(root.rglob("resume-tailored.pdf")), [])
+
+    def test_preparation_limit_persists_across_runs_for_same_day(self):
+        job, match, profile = inputs()
+        later_job = replace(job, job_id=job.job_id + "-later")
+        later_match = replace(match, job_id=later_job.job_id)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            first = prepare_daily_batch(FakeStore([job.to_dict()], [asdict(match)]),
+                                        "2026-10-13T15:00:00Z", profile, root,
+                                        max_preparations=1, prepare_threshold=match.score)
+            second = prepare_daily_batch(FakeStore([later_job.to_dict()], [asdict(later_match)]),
+                                         "2026-10-13T16:00:00Z", profile, root,
+                                         max_preparations=1, prepare_threshold=match.score)
+
+            self.assertEqual(first["prepared"], 1)
+            self.assertEqual(second["prepared"], 0)
+            self.assertEqual(len(list(root.rglob("resume-tailored.pdf"))), 1)
+
+    def test_completed_package_recovers_if_process_stopped_before_ledger_update(self):
+        job, match, profile = inputs()
+        store = FakeStore([job.to_dict()], [asdict(match)])
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            prepare_daily_batch(store, "2026-10-13T15:00:00Z", profile, root,
+                                max_preparations=1, prepare_threshold=match.score)
+            ledger = root / "fictional" / ".preparation-ledger.sqlite3"
+            with closing(sqlite3.connect(ledger)) as connection:
+                with connection:
+                    connection.execute("UPDATE preparations SET status='reserved'")
+
+            result = prepare_daily_batch(store, "2026-10-13T15:01:00Z", profile, root,
+                                         max_preparations=1, prepare_threshold=match.score)
+
+            self.assertEqual(result["existing"], 1)
+            self.assertEqual(result["in_progress"], 0)
+
+    def test_unavailable_ledger_fails_as_safe_local_io_error(self):
+        job, match, profile = inputs()
+        with tempfile.TemporaryDirectory() as directory:
+            ledger_path = Path(directory) / "fictional" / ".preparation-ledger.sqlite3"
+            ledger_path.mkdir(parents=True)
+
+            with self.assertRaises(OSError):
+                prepare_daily_batch(FakeStore([job.to_dict()], [asdict(match)]),
+                                    "2026-10-13T15:00:00Z", profile, Path(directory),
+                                    max_preparations=1, prepare_threshold=match.score)
 
 
 if __name__ == "__main__":
