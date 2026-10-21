@@ -37,7 +37,7 @@ Los dos CVs recientes de Alec fueron confirmados por él. El perfil `private/ale
 
 Cuando alguna vacante sea `shortlist` con todas las condiciones verificadas, `scripts/run-alec-pull.py --prepare` podrá crear localmente hasta **tres** paquetes por día y sólo por encima del umbral privado. Con el perfil aprobado y el lote real de hoy devolvió `prepared: 0` y `confirmed_applications: 0`, sin tomar el lock. No está habilitado en la tarea programada de las 09:00; primero se revisará un paquete de una oferta real completa. La cuota tres es un límite técnico conservador y se puede ajustar por decisión posterior.
 
-Gmail se reservó para Codex, pero su conector no está disponible en este chat. Cuando esté conectado con la cuenta de Alec se probará lectura acotada de alertas; no se copiarán mensajes ni tokens a AWS.
+La cuenta Gmail de Alec ya figura conectada en Codex. El 20 de octubre se leyó una muestra acotada mediante la sesión web de la misma cuenta porque las herramientas del conector siguen indisponibles en este chat. La tarea diaria intentará la lectura acotada por conector o navegador y reportará si falla. Los enlaces originales y la evaluación del piloto están sólo en `private/alec/`; no se copian mensajes ni tokens a AWS o Git. La primera ejecución programada con Gmail aún debe verificarse.
 
 `AUTO_SUBMIT` sigue desactivado. Greenhouse permite leer el board público; su API de envío requiere una clave del empleador y respuestas específicas. Para una postulación por navegador se necesita un paquete revisado y una autorización **para esa vacante y ese portal**, junto con el formulario concreto, antes del envío. No se afirma que exista una integración universal ni se enviará una candidatura por inferencia de un score.
 

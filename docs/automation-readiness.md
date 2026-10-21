@@ -1,6 +1,6 @@
 # Automatización diaria: alcance real
 
-Actualizado el 2026-10-19. El plan maestro privado v3 rige este diseño. Sólo Alec y este PC están activos; los datos profesionales permanecen fuera de Git.
+Actualizado el 2026-10-20. El plan maestro privado v3 rige este diseño. Sólo Alec y este PC están activos; los datos profesionales permanecen fuera de Git.
 
 | Etapa | Estado actual | Siguiente requisito |
 | --- | --- | --- |
@@ -8,7 +8,7 @@ Actualizado el 2026-10-19. El plan maestro privado v3 rige este diseño. Sólo A
 | Publicación AWS | **Activa**, 08:30. Política privada de Alec, hasta diez vacantes por lote; primera corrida programada: `READY` con diez vacantes, una invocación y cero errores. | Vigilar gasto atribuido y continuidad. |
 | Revisión Codex | Tarea local **AJI Alec — revisión diaria** ejecutada a las 09:00; lote del 19 de octubre: diez en `review`, cero CVs y cero postulaciones. | Confirmar visibilidad en Remote y continuidad con el PC encendido. |
 | Preparación de CV | Perfil privado de Alec aprobado con 36 afirmaciones rastreables a los dos PDF; `run-alec-pull.py --prepare` aplica umbral y cuota de tres y escribe paquetes atómicamente. Un perfil amplio se resume en un máximo de 12 afirmaciones por CV y tres por carta. La tarea de las 09:00 no ejecuta esta opción. | Vacante con condiciones suficientes y revisión de un primer paquete real antes de habilitarla en la tarea. |
-| Alertas Gmail | Diseño por candidato documentado, sin lector AWS. | Conectar el Gmail de Alec en Codex; el conector no está expuesto en este chat. |
+| Alertas Gmail | Cuenta de Alec conectada y piloto de lectura acotada en navegador completado; las funciones del conector rechazan llamadas en este chat. Sin lector AWS ni mensajes en Git. | Probar la lectura acotada en la próxima tarea diaria por conector o navegador y comprobar deduplicación/visibilidad en Remote. |
 | Postulaciones | `AUTO_SUBMIT` apagado; no hay cliente de portal ni envíos reales. | Integración permitida, respuestas verificadas, autorización concreta por vacante y portal, recibo e idempotencia. |
 
 `max_jobs_per_day=10` limita sólo las vacantes del lote. Los GET están acotados por tres fuentes, timeout, tamaño y reintentos; aún no hay contadores diarios independientes para preparación y envío. Ninguna alerta de presupuesto constituye un tope de gasto.
