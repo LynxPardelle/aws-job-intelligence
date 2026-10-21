@@ -13,7 +13,7 @@
   ],
   "properties": {
     "job_id": {"type": "string", "minLength": 1},
-    "source": {"enum": ["greenhouse", "lever", "ashby"]},
+    "source": {"enum": ["greenhouse", "lever", "ashby", "getonbrd"]},
     "board": {"type": "string", "minLength": 1},
     "external_id": {"type": "string", "minLength": 1},
     "company": {"type": "string", "minLength": 1},

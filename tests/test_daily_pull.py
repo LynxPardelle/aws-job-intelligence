@@ -17,11 +17,13 @@ class FakeStore:
     def load(self, now):
         return (
             {"batch_id": "alec:2026-10-13", "candidate_id": "alec", "status": "READY",
-             "job_ids": ["job-1", "job-2"]},
+             "generated_at": "2026-10-13T14:30:00Z", "job_ids": ["job-1", "job-2"]},
             [{"job_id": "job-1", "title": "Data Engineer", "company": "Example",
-              "source_url": "https://example.invalid/1"},
+              "source_url": "https://example.invalid/1",
+              "apply_url": "https://jobs.example.invalid/apply/1"},
              {"job_id": "job-2", "title": "Developer", "company": "Example",
-              "source_url": "https://example.invalid/2"}],
+              "source_url": "https://example.invalid/2",
+              "apply_url": "https://jobs.example.invalid/apply/2"}],
             [{"job_id": "job-1", "candidate_id": "alec", "decision": "shortlist", "score": 90},
              {"job_id": "job-2", "candidate_id": "alec", "decision": "review", "score": 55}],
         )
@@ -40,6 +42,9 @@ class DailyPullTests(unittest.TestCase):
         self.assertEqual(summary["shortlisted"], 1)
         self.assertEqual(summary["needs_review"], 1)
         self.assertEqual(summary["confirmed_applications"], 0)
+        self.assertEqual(summary["generated_at"], "2026-10-13T14:30:00Z")
+        self.assertEqual(summary["opportunities"][0]["apply_url"],
+                         "https://jobs.example.invalid/apply/1")
         self.assertEqual(store.lock_calls, 0)
 
     def test_run_claims_lock_and_reports_already_processed(self):

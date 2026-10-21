@@ -14,8 +14,11 @@ _NEXT = {
     "PREPARED": {"REVIEWED"},
     "REVIEWED": {"SUBMISSION_AUTHORIZED"},
     "SUBMISSION_AUTHORIZED": {"SUBMITTED"},
-    "SUBMITTED": {"CONFIRMED"},
-    "CONFIRMED": set(),
+    "SUBMITTED": {"CONFIRMED", "REJECTED"},
+    "CONFIRMED": {"INTERVIEW", "OFFER", "REJECTED"},
+    "INTERVIEW": {"OFFER", "REJECTED"},
+    "OFFER": {"HIRED", "REJECTED"},
+    "HIRED": set(),
     "REJECTED": set(),
     "BLOCKED": set(),
     "FAILED": set(),
@@ -47,6 +50,10 @@ def transition(current: str, target: str, *, proof: dict | None = None,
     elif target == "CONFIRMED":
         if not evidence.get("acknowledgment"):
             raise ValueError("acknowledgment required")
+    elif target in {"INTERVIEW", "OFFER", "HIRED"} or \
+            (target == "REJECTED" and current in {"SUBMITTED", "CONFIRMED", "INTERVIEW", "OFFER"}):
+        if not evidence.get("evidence_ref"):
+            raise ValueError("outcome evidence required")
     return target
 
 

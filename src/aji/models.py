@@ -20,7 +20,7 @@ class Salary:
 @dataclass(frozen=True)
 class Job:
     job_id: str
-    source: Literal["greenhouse", "lever", "ashby"]
+    source: Literal["greenhouse", "lever", "ashby", "getonbrd"]
     board: str
     external_id: str
     company: str

@@ -68,6 +68,47 @@ class TransportTests(unittest.TestCase):
             fetch_jobs("lever", "acmeexample", "Acme Example", "2026-10-13T12:00:00Z",
                        opener=opener, max_bytes=128)
 
+    def test_getonbrd_uses_https_get_and_stops_on_short_page(self):
+        payload = (Path(__file__).parent / "fixtures" / "getonbrd.json").read_bytes()
+        requests = []
+
+        def opener(request, timeout):
+            requests.append((request.full_url, request.get_method(), timeout))
+            return Response(payload)
+
+        jobs = fetch_jobs("getonbrd", "programming", "Get on Board",
+                          "2026-10-13T12:00:00Z", opener=opener, max_pages=3)
+        self.assertEqual(len(jobs), 2)
+        self.assertEqual(requests, [
+            ("https://www.getonbrd.com/api/v0/categories/programming/jobs"
+             "?per_page=100&expand%5B%5D=company&page=1", "GET", 8)
+        ])
+
+    def test_getonbrd_pagination_has_fixed_cap(self):
+        sample = json.loads((Path(__file__).parent / "fixtures" / "getonbrd.json").read_text("utf-8"))["data"][0]
+        first = []
+        for index in range(100):
+            item = json.loads(json.dumps(sample))
+            item["id"] = f"sample-{index}"
+            item["links"]["public_url"] = f"https://www.getonbrd.com/jobs/sample-{index}"
+            first.append(item)
+        requests = []
+
+        def opener(request, timeout):
+            requests.append(request.full_url)
+            payload = {"data": first if len(requests) == 1 else []}
+            return Response(json.dumps(payload).encode("utf-8"))
+
+        jobs = fetch_jobs("getonbrd", "programming", "Get on Board",
+                          "2026-10-13T12:00:00Z", opener=opener, max_pages=2)
+        self.assertEqual(len(jobs), 100)
+        self.assertEqual(len(requests), 2)
+        self.assertTrue(requests[-1].endswith("page=2"))
+        with self.assertRaises(ValueError):
+            fetch_jobs("getonbrd", "programming", "Get on Board",
+                       "2026-10-13T12:00:00Z", opener=opener, max_pages=4)
+        self.assertEqual(len(requests), 2)
+
 
 if __name__ == "__main__":
     unittest.main()

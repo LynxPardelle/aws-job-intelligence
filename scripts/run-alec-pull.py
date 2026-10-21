@@ -9,6 +9,7 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,6 +18,11 @@ sys.path.insert(0, str(ROOT / "src"))
 from aji.aws_batch_io import CandidateBatchStore  # noqa: E402
 from aji.daily_pull import inspect_daily_batch  # noqa: E402
 from aji.daily_preparation import prepare_daily_batch  # noqa: E402
+from aji.liveness import check_job_liveness  # noqa: E402
+from aji.job_history import annotate_summary_history  # noqa: E402
+from aji.compensation_ledger import record_advertised_salaries  # noqa: E402
+from aji.application_tracker import (ApplicationTracker, register_discovered_from_summary,
+                                     register_prepared_from_summary)  # noqa: E402
 
 
 MAX_PREPARATIONS_PER_DAY = 3
@@ -131,6 +137,7 @@ def main() -> int:
                 store, datetime.now(timezone.utc).isoformat(), preparation_profile,
                 ROOT / "applications", max_preparations=MAX_PREPARATIONS_PER_DAY,
                 prepare_threshold=preparation_threshold,
+                liveness_checker=check_job_liveness,
             )
         except Exception as exc:
             code = getattr(exc, "response", {}).get("Error", {}).get("Code")
@@ -148,11 +155,35 @@ def main() -> int:
                               "error_code": error_code, "prepared": 0,
                               "confirmed_applications": 0}))
             return 2
+        try:
+            tracker = ApplicationTracker(ROOT / "applications" / "alec" / ".tracker.sqlite3",
+                                         "alec")
+            summary["tracker"] = register_prepared_from_summary(tracker, summary)
+        except (OSError, ValueError, KeyError):
+            summary["tracker_status"] = "UNAVAILABLE"
         print(json.dumps(summary, ensure_ascii=False, indent=2))
         return 0
-    summary, exit_code = read_batch_summary(
-        store, datetime.now(timezone.utc).isoformat(), args.claim,
-    )
+    now = datetime.now(timezone.utc)
+    summary, exit_code = read_batch_summary(store, now.isoformat(), args.claim)
+    if summary["status"] in {"READY", "ALREADY_PROCESSED"}:
+        try:
+            summary = annotate_summary_history(
+                summary, ROOT / "applications" / "alec" / ".job-history.sqlite3",
+                "alec", now.astimezone(ZoneInfo("America/Mexico_City")).date().isoformat(),
+            )
+        except (OSError, ValueError):
+            summary["history_status"] = "UNAVAILABLE"
+        try:
+            summary["salary_observations_added"] = record_advertised_salaries(
+                ROOT / "applications" / "alec" / ".compensation.sqlite3", summary)
+        except (OSError, ValueError):
+            summary["salary_ledger_status"] = "UNAVAILABLE"
+        try:
+            tracker = ApplicationTracker(ROOT / "applications" / "alec" / ".tracker.sqlite3",
+                                         "alec")
+            summary["tracker"] = register_discovered_from_summary(tracker, summary)
+        except (OSError, ValueError, KeyError):
+            summary["tracker_status"] = "UNAVAILABLE"
     if args.claim and summary["status"] == "READY":
         destination = ROOT / "applications" / "alec" / "daily-summary.json"
         destination.parent.mkdir(parents=True, exist_ok=True)

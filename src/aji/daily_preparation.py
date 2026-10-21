@@ -20,6 +20,16 @@ from .normalizer import utc_timestamp
 
 _MEXICO_CITY = ZoneInfo("America/Mexico_City")
 _RESERVATION_TIMEOUT = timedelta(minutes=15)
+_PACKAGE_FILES = (
+    "resume-tailored.md", "resume-tailored.pdf", "job-description.md",
+    "match-analysis.json", "evidence-map.json", "requirements-evidence.json",
+    "cover-letter.md", "application-answers.md", "review-checklist.md",
+)
+
+
+def _package_complete(package_dir: Path) -> bool:
+    return all((package_dir / name).is_file() and (package_dir / name).stat().st_size > 0
+               for name in _PACKAGE_FILES)
 
 
 @contextmanager
@@ -75,7 +85,8 @@ def _finish(conn: sqlite3.Connection, day: str, job_id: str, *, complete: bool) 
 
 
 def prepare_daily_batch(store, now: str, profile: dict, output_root: Path, *,
-                        max_preparations: int, prepare_threshold: int) -> dict:
+                        max_preparations: int, prepare_threshold: int,
+                        liveness_checker=None) -> dict:
     if type(max_preparations) is not int or not 1 <= max_preparations <= 10:
         raise ValueError("invalid daily preparation limit")
     if type(prepare_threshold) is not int or not 0 <= prepare_threshold <= 100:
@@ -97,12 +108,13 @@ def prepare_daily_batch(store, now: str, profile: dict, output_root: Path, *,
         "status": "READY", "candidate_id": store.candidate_id,
         "batch_id": manifest["batch_id"], "jobs_found": len(raw_jobs),
         "prepared": 0, "existing": 0, "blocked": 0, "in_progress": 0,
-        "daily_limit_reached": False, "blocked_job_ids": [],
+        "daily_limit_reached": False, "blocked_job_ids": [], "completed_items": [],
         "confirmed_applications": 0,
     }
     normalized_now = utc_timestamp(now)
     if normalized_now is None:
         raise ValueError("current time required")
+    result["completed_at"] = normalized_now
     local_day = datetime.fromisoformat(normalized_now.replace("Z", "+00:00")).astimezone(
         _MEXICO_CITY).date().isoformat()
     ledger_dir = Path(output_root) / store.candidate_id
@@ -123,29 +135,44 @@ def prepare_daily_batch(store, now: str, profile: dict, output_root: Path, *,
                     raw_match.get("unknowns") or raw_match.get("reasons"):
                 continue
             job_id = raw_job["job_id"]
+            completed_item = {"job_id": job_id, "apply_url": raw_job["apply_url"]}
+            package_dir = ledger_dir / re.sub(r"[^A-Za-z0-9_-]", "_", job_id)
             reservation = _reserve(conn, local_day, job_id, max_preparations, normalized_now)
             if reservation == "limit":
                 result["daily_limit_reached"] = True
                 break
             if reservation == "existing":
-                result["existing"] += 1
+                if _package_complete(package_dir):
+                    result["existing"] += 1
+                    result["completed_items"].append(completed_item)
+                else:
+                    result["blocked"] += 1
+                    result["blocked_job_ids"].append(job_id)
                 continue
             if reservation == "in_progress":
-                package_dir = ledger_dir / re.sub(r"[^A-Za-z0-9_-]", "_", job_id)
-                if (package_dir / "resume-tailored.pdf").is_file() and \
-                        (package_dir / "evidence-map.json").is_file():
+                if _package_complete(package_dir):
                     _finish(conn, local_day, job_id, complete=True)
                     result["existing"] += 1
+                    result["completed_items"].append(completed_item)
                 else:
                     result["in_progress"] += 1
                 continue
             try:
                 job = job_from_dict(raw_job)
                 match = MatchResult(**raw_match)
+                if liveness_checker is not None and \
+                        liveness_checker(job, normalized_now).status != "active":
+                    raise ValueError("job liveness is not confirmed")
                 prepare_application(job, match, profile, output_root)
             except FileExistsError:
-                _finish(conn, local_day, job_id, complete=reservation == "retry")
-                result["existing"] += 1
+                complete = _package_complete(package_dir)
+                _finish(conn, local_day, job_id, complete=complete)
+                if complete:
+                    result["existing"] += 1
+                    result["completed_items"].append(completed_item)
+                else:
+                    result["blocked"] += 1
+                    result["blocked_job_ids"].append(job_id)
             except ValueError:
                 _finish(conn, local_day, job_id, complete=False)
                 result["blocked"] += 1
@@ -156,4 +183,5 @@ def prepare_daily_batch(store, now: str, profile: dict, output_root: Path, *,
             else:
                 _finish(conn, local_day, job_id, complete=True)
                 result["prepared"] += 1
+                result["completed_items"].append(completed_item)
     return result

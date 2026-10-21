@@ -112,6 +112,40 @@ class ConnectorTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             build_feed_url("greenhouse", "../../internal")
 
+    def test_getonbrd_feed_uses_fixed_host_and_validated_category(self):
+        self.assertEqual(
+            build_feed_url("getonbrd", "machine-learning-ai"),
+            "https://www.getonbrd.com/api/v0/categories/machine-learning-ai/jobs?per_page=100&expand%5B%5D=company&page=1",
+        )
+        with self.assertRaises(ValueError):
+            build_feed_url("getonbrd", "../internal")
+
+    def test_getonbrd_normalizes_description_without_assuming_mexico_or_currency(self):
+        jobs = parse_feed("getonbrd", "programming", "Get on Board",
+                          fixture("getonbrd.json"), RETRIEVED_AT)
+        self.assertEqual(len(jobs), 2)
+        self.assertEqual(jobs[0].job_id, "getonbrd:programming:sample-101")
+        self.assertEqual(jobs[0].company, "Example Technology")
+        self.assertEqual(jobs[0].modality, "remote")
+        self.assertEqual(jobs[0].mexico_eligibility, "unknown")
+        self.assertIsNone(jobs[0].salary)
+        self.assertIn("Work with Python and AWS.", jobs[0].description)
+        self.assertEqual(jobs[0].published_at, "2026-10-13T12:00:00Z")
+        self.assertEqual(jobs[1].modality, "unknown")
+        self.assertEqual(jobs[1].mexico_eligibility, "unknown")
+
+    def test_getonbrd_rejects_off_host_posting_url_and_invalid_payload(self):
+        payload = fixture("getonbrd.json")
+        payload["data"][0]["links"]["public_url"] = "https://evil.example/jobs/steal"
+        with self.assertRaises(ValueError):
+            parse_feed("getonbrd", "programming", "Get on Board", payload, RETRIEVED_AT)
+        with self.assertRaises(ValueError):
+            parse_feed("getonbrd", "programming", "Get on Board", {"message": "blocked"}, RETRIEVED_AT)
+        malformed = fixture("getonbrd.json")
+        malformed["data"][0]["attributes"]["company"] = "not-an-object"
+        with self.assertRaises(ValueError):
+            parse_feed("getonbrd", "programming", "Get on Board", malformed, RETRIEVED_AT)
+
     def test_lever_feed_preserves_explicit_salary_and_modality(self):
         job = parse_feed("lever", "acmeexample", "Acme Example", fixture("lever.json"), RETRIEVED_AT)[0]
 

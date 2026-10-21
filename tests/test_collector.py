@@ -37,7 +37,8 @@ class CollectorTests(unittest.TestCase):
                               "2026-10-13T14:00:00Z", fetcher=fetcher,
                               writer=written.append, max_sources=10)
 
-        self.assertEqual(result, {"status": "OK", "jobs_written": 1, "sources": 1})
+        self.assertEqual(result, {"status": "OK", "jobs_written": 1, "sources": 1,
+                                  "empty_sources": 0})
         self.assertEqual(calls, [("greenhouse", "acmeexample", "Acme Example")])
         self.assertEqual([item.get("status") for item in written], ["STARTED", "open", "COMPLETE"])
         self.assertEqual(written[0]["job_id"], "run#2026-10-13")
@@ -63,6 +64,31 @@ class CollectorTests(unittest.TestCase):
         self.assertEqual(written[0]["status"], "STARTED")
         self.assertFalse(any(item.get("status") == "COMPLETE" for item in written))
 
+    def test_source_health_preserves_empty_board_without_failing_other_sources(self):
+        written = []
+        sources = [
+            {"source": "greenhouse", "board": "first", "company": "First", "enabled": True},
+            {"source": "greenhouse", "board": "second", "company": "Second", "enabled": True},
+        ]
+        result = collect_once(sources, "2026-10-13T14:00:00Z",
+                              fetcher=lambda _, board, *__: sample_jobs() if board == "first" else [],
+                              writer=written.append, max_sources=2)
+        self.assertEqual([entry["status"] for entry in written[-1]["source_health"]],
+                         ["active", "empty"])
+        self.assertEqual([entry["job_count"] for entry in written[-1]["source_health"]], [1, 0])
+        self.assertEqual(result["empty_sources"], 1)
+
+    def test_failed_feed_marks_run_failed_with_safe_source_reason(self):
+        written = []
+        with self.assertRaises(RuntimeError):
+            collect_once([{"source": "greenhouse", "board": "first", "company": "First",
+                           "enabled": True}], "2026-10-13T14:00:00Z",
+                         fetcher=lambda *_: (_ for _ in ()).throw(RuntimeError("secret error text")),
+                         writer=written.append, max_sources=1)
+        self.assertEqual(written[-1]["status"], "FAILED")
+        self.assertEqual(written[-1]["source_health"][0]["status"], "failed")
+        self.assertNotIn("secret error text", str(written[-1]))
+
     def test_invalid_source_stops_before_fetch_or_write(self):
         calls = []
         with self.assertRaises(ValueError):
@@ -86,7 +112,8 @@ class CollectorTests(unittest.TestCase):
                 patch("aji.lambda_handler.fetch_jobs", return_value=sample_jobs()):
             result = handler({}, None)
 
-        self.assertEqual(result, {"status": "OK", "jobs_written": 1, "sources": 1})
+        self.assertEqual(result, {"status": "OK", "jobs_written": 1, "sources": 1,
+                                  "empty_sources": 0})
         self.assertEqual(writes[1]["Item"]["job_id"], "greenhouse:acmeexample:101")
         self.assertEqual(writes[2]["Item"]["status"], "COMPLETE")
         self.assertNotIn("candidate_id", writes[1]["Item"])

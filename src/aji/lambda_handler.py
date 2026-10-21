@@ -36,10 +36,26 @@ def collect_once(sources: list[dict], now: str, *, fetcher, writer, max_sources:
     }
     writer(marker)
     all_jobs = []
+    source_health = []
     for item in active:
-        all_jobs.extend(fetcher(item["source"], item["board"], item["company"], retrieved_at))
-        if len(all_jobs) > 1000:
-            raise ValueError("job quota exceeded")
+        try:
+            source_jobs = fetcher(item["source"], item["board"], item["company"], retrieved_at)
+            if not isinstance(source_jobs, list):
+                raise ValueError("invalid source result")
+            all_jobs.extend(source_jobs)
+            if len(all_jobs) > 1000:
+                raise ValueError("job quota exceeded")
+        except Exception:
+            failed = {"source": item["source"], "board": item["board"],
+                      "status": "failed", "job_count": 0}
+            try:
+                writer({**marker, "status": "FAILED", "source_health": source_health + [failed]})
+            except Exception:
+                pass
+            raise
+        source_health.append({"source": item["source"], "board": item["board"],
+                              "status": "active" if source_jobs else "empty",
+                              "job_count": len(source_jobs)})
     unique = deduplicate_jobs(all_jobs)
     for job in unique:
         item = job.to_dict()
@@ -49,8 +65,10 @@ def collect_once(sources: list[dict], now: str, *, fetcher, writer, max_sources:
         if len(json.dumps(item, ensure_ascii=False).encode("utf-8")) > 300_000:
             raise ValueError("job item exceeds size limit")
         writer(item)
-    writer({**marker, "status": "COMPLETE", "job_count": len(unique)})
-    return {"status": "OK", "jobs_written": len(unique), "sources": len(active)}
+    writer({**marker, "status": "COMPLETE", "job_count": len(unique),
+            "source_health": source_health})
+    return {"status": "OK", "jobs_written": len(unique), "sources": len(active),
+            "empty_sources": sum(item["status"] == "empty" for item in source_health)}
 
 
 def _dynamodb_types(value):

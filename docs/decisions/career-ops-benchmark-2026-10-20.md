@@ -34,3 +34,7 @@ El 2026-10-20 se hicieron tres GET de sólo lectura, una primera página de 20 p
 El código externo usa [MIT](https://github.com/career-ops-hq/career-ops/blob/c87e0f05a5bf3b0e7bff1f6c87fd0865191e7da7/LICENSE). Esta revisión **no incorpora código** de `career-ops`. Si después se copia una porción, incluir su aviso de copyright y licencia en la distribución, registrar archivo y commit de origen y revisar dependencias y pruebas. Preferir implementar nuestras interfaces y controles a partir del concepto.
 
 **Decisión:** comenzar por salud de fuentes y por un prototipo local acotado de Get on Board; diseñar después bitácora salarial y tracker privado. Cada entrega conserva aislamiento por candidato, pruebas con fixtures y fallos que quedan en revisión. No se habilitan nuevos servicios ni postulaciones mediante esta decisión.
+
+## Estado de adopción local
+
+El 2026-10-20 quedaron implementados los seis patrones priorizados en el [plan de adopción](../../plan/career-ops-adoption.md): salud por fuente, Get on Board local, bitácora salarial, tracker de eventos, revalidación e historial, y matriz de requisitos con evidencia. Se escribieron interfaces y pruebas propias; no se copió código MIT. Get on Board no está configurado como fuente AWS. La memoria histórica avisa sobre repetición, pero todavía no reduce los diez cupos del publicador entre días. Una respuesta de Gmail sigue requiriendo revisión antes de modificar el tracker. Ninguna de estas funciones habilita envíos.

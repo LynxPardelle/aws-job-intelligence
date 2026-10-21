@@ -117,6 +117,18 @@ class PackageTests(unittest.TestCase):
                 self.assertIn(value, resume)
                 self.assertIn(value, pdf_text)
 
+    def test_package_includes_quoted_requirement_matrix_with_unverified_gaps(self):
+        job, match, profile = inputs()
+        job = replace(job, description="Required: five years of Python experience. "
+                     "Nice to have: Kubernetes.")
+        with tempfile.TemporaryDirectory() as directory:
+            output = prepare_application(job, match, profile, Path(directory))
+            matrix = json.loads((output / "requirements-evidence.json").read_text("utf-8"))
+            self.assertEqual(matrix[0]["status"], "related_evidence")
+            self.assertIn("five years", matrix[0]["quote"])
+            self.assertEqual(matrix[1]["status"], "unverified")
+            self.assertNotIn("meets_requirement", str(matrix))
+
 
 if __name__ == "__main__":
     unittest.main()

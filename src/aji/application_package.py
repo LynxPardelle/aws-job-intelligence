@@ -9,6 +9,7 @@ from xml.sax.saxutils import escape
 
 from .models import Job
 from .matcher import MatchResult
+from .requirements import requirement_evidence_matrix
 
 MAX_RESUME_CLAIMS = 12
 MAX_LETTER_CLAIMS = 3
@@ -134,6 +135,10 @@ def _write_package(output: Path, job: Job, match: MatchResult,
                     **claim["evidence"]} for claim in claims],
     }
     (output / "evidence-map.json").write_text(json.dumps(evidence_map, indent=2), encoding="utf-8")
+    (output / "requirements-evidence.json").write_text(
+        json.dumps(requirement_evidence_matrix(job.description, claims), ensure_ascii=False,
+                   indent=2), encoding="utf-8",
+    )
     (output / "cover-letter.md").write_text(
         f"Dear Hiring Team,\n\nI am interested in the {job.title} role at {job.company}. "
         "My verified experience includes:\n\n" +
@@ -149,6 +154,7 @@ def _write_package(output: Path, job: Job, match: MatchResult,
         "# Review checklist\n\n"
         "- [ ] Confirm the job is active and accepts applicants from Mexico.\n"
         "- [ ] Verify every CV fact against the evidence map.\n"
+        "- [ ] Review each quoted requirement and any unverified gap.\n"
         "- [ ] Review compensation, portal questions and attachments.\n"
         "- [ ] Obtain separate authorization before any real submission.\n",
         encoding="utf-8",

@@ -60,6 +60,20 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(application_key("alec", "job-1", "https://jobs.example.com/apply?utm_source=x"),
                          application_key("alec", "job-1", "https://jobs.example.com/apply"))
 
+    def test_confirmed_application_can_track_evidenced_interview_and_offer(self):
+        with self.assertRaises(ValueError):
+            transition("CONFIRMED", "INTERVIEW")
+        self.assertEqual(transition("CONFIRMED", "INTERVIEW",
+                                    proof={"evidence_ref": "private:calendar-event"}), "INTERVIEW")
+        self.assertEqual(transition("INTERVIEW", "OFFER",
+                                    proof={"evidence_ref": "private:offer-letter"}), "OFFER")
+        self.assertEqual(transition("OFFER", "HIRED",
+                                    proof={"evidence_ref": "private:signed-contract"}), "HIRED")
+        self.assertEqual(transition("CONFIRMED", "REJECTED",
+                                    proof={"evidence_ref": "private:employer-response"}), "REJECTED")
+        with self.assertRaises(ValueError):
+            transition("HIRED", "REJECTED")
+
 
 if __name__ == "__main__":
     unittest.main()

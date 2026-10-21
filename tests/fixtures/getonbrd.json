@@ -1,0 +1,36 @@
+{
+  "data": [
+    {
+      "id": "sample-101",
+      "type": "jobs",
+      "attributes": {
+        "title": "Senior Cloud Engineer",
+        "description": "<p>Build secure cloud systems.</p>",
+        "functions": "<p>Work with Python and AWS.</p>",
+        "desirable": "<p>Experience with CDK.</p>",
+        "remote": true,
+        "countries": ["Chile"],
+        "min_salary": 3000,
+        "max_salary": 5000,
+        "published_at": 1791892800,
+        "company": {"data": {"attributes": {"name": "Example Technology"}}}
+      },
+      "links": {"public_url": "https://www.getonbrd.com/jobs/senior-cloud-example"}
+    },
+    {
+      "id": "sample-102",
+      "type": "jobs",
+      "attributes": {
+        "title": "Data Engineer",
+        "description": "<p>Data platforms.</p>",
+        "remote": false,
+        "countries": ["Mexico"],
+        "min_salary": null,
+        "max_salary": null,
+        "published_at": 1791892800,
+        "company": {"data": {"attributes": {"name": "Example Data"}}}
+      },
+      "links": {"public_url": "https://www.getonbrd.com/jobs/data-example"}
+    }
+  ]
+}

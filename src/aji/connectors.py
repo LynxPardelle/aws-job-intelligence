@@ -8,7 +8,8 @@ from .normalizer import explicit_modality, explicit_seniority, plain_text, publi
 
 
 _BOARD = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}\Z")
-_SOURCES = {"greenhouse", "lever", "ashby"}
+_SOURCES = {"greenhouse", "lever", "ashby", "getonbrd"}
+_GETONBRD_CATEGORIES = {"programming", "operations-management", "machine-learning-ai"}
 _GREENHOUSE_SALARY = re.compile(
     r"\b(?:salary|compensation) range (?:for (?:this|the) (?:role|position) )?is\s*"
     r"\$?\s*(?P<minimum>\d[\d,]*)\s*(?:-|–|—|to)\s*\$?\s*"
@@ -23,9 +24,18 @@ _GREENHOUSE_CONTRACT_RATE = re.compile(
 )
 
 
-def build_feed_url(source: str, board: str) -> str:
+def build_feed_url(source: str, board: str, *, page: int = 1) -> str:
     if source not in _SOURCES or not _BOARD.fullmatch(board):
         raise ValueError("unsupported source or board")
+    if type(page) is not int or not 1 <= page <= 3:
+        raise ValueError("invalid feed page")
+    if source == "getonbrd":
+        if board not in _GETONBRD_CATEGORIES:
+            raise ValueError("unsupported Get on Board category")
+        return (f"https://www.getonbrd.com/api/v0/categories/{board}/jobs"
+                f"?per_page=100&expand%5B%5D=company&page={page}")
+    if page != 1:
+        raise ValueError("pagination is unsupported for this source")
     if source == "greenhouse":
         return f"https://boards-api.greenhouse.io/v1/boards/{board}/jobs?content=true"
     if source == "lever":
@@ -128,6 +138,8 @@ def parse_feed(source: str, board: str, company: str, payload: object, retrieved
     build_feed_url(source, board)
     if source == "lever":
         entries = payload
+    elif source == "getonbrd":
+        entries = payload.get("data") if isinstance(payload, dict) else None
     else:
         entries = payload.get("jobs") if isinstance(payload, dict) else None
     if not isinstance(entries, list):
@@ -137,7 +149,39 @@ def parse_feed(source: str, board: str, company: str, payload: object, retrieved
     for raw in entries:
         if not isinstance(raw, dict):
             raise ValueError("invalid ATS job")
-        if source == "greenhouse":
+        if source == "getonbrd":
+            attributes = raw.get("attributes")
+            links = raw.get("links")
+            if not isinstance(attributes, dict) or not isinstance(links, dict):
+                raise ValueError("invalid Get on Board job")
+            company_data = attributes.get("company")
+            if not isinstance(company_data, dict) or \
+                    not isinstance(company_data.get("data"), dict) or \
+                    not isinstance(company_data["data"].get("attributes"), dict):
+                raise ValueError("invalid Get on Board company")
+            name = company_data["data"]["attributes"]
+            employer = name.get("name")
+            if not isinstance(employer, str) or not employer.strip():
+                raise ValueError("Get on Board employer missing")
+            url = _required_url(links.get("public_url"))
+            parts = urlsplit(url)
+            if parts.hostname != "www.getonbrd.com" or not parts.path.startswith("/jobs/"):
+                raise ValueError("Get on Board posting URL is not trusted")
+            countries = attributes.get("countries")
+            if not isinstance(countries, list) or any(not isinstance(value, str) for value in countries):
+                raise ValueError("invalid Get on Board countries")
+            location = ", ".join(value.strip() for value in countries if value.strip()) or None
+            description = " ".join(plain_text(attributes.get(key)) for key in
+                                   ("description", "functions", "desirable") if attributes.get(key)).strip()
+            published = attributes.get("published_at")
+            if published is not None and (type(published) is not int or published <= 0):
+                raise ValueError("invalid Get on Board publication time")
+            jobs.append(_job(source, board, employer.strip(), str(raw.get("id") or ""),
+                             str(attributes.get("title") or ""), description, location,
+                             "remote" if attributes.get("remote") is True else "unknown",
+                             None, url, url, published * 1000 if published else None, None,
+                             retrieved_at, explicit_seniority(str(attributes.get("title") or ""))))
+        elif source == "greenhouse":
             if raw.get("internal_job_id") is None:
                 continue
             url = raw.get("absolute_url")
