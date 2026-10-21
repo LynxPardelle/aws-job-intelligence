@@ -17,14 +17,10 @@ El PC debe estar encendido, con Codex Desktop operativo y este chat disponible p
 Desde la raíz del repositorio, en PowerShell:
 
 ```powershell
-powershell -File scripts/check-aws-local.ps1
-.\.venv\Scripts\python.exe scripts/check-source-health.py
-.\.venv\Scripts\python.exe scripts/run-alec-pull.py
-.\.venv\Scripts\python.exe scripts/preview-getonbrd.py
-.\.venv\Scripts\python.exe scripts/run-alec-pull.py --prepare
+.\.venv\Scripts\python.exe scripts/run-alec-daily.py
 ```
 
-`check-source-health.py` muestra fuentes activas/vacías y cambios frente al día anterior; `NOT_INSTRUMENTED` significa que el Collector aún usaba un marcador anterior. `run-alec-pull.py` muestra `READY`, fecha/lote, empresas, títulos, URLs, score y motivo de revisión cuando el lote del día existe. `preview-getonbrd.py` es una vista local separada: hasta tres categorías, cien ofertas por primera página, diez mostradas, y aviso de posible truncamiento. No se suma al lote AWS ni genera CVs. El último comando genera sólo borradores locales de `shortlist` AWS válida con perfil aprobado y revalidación del feed; aplica una cuota persistente de tres paquetes al día. Ejecutarlos varias veces no reclama el lote. **No usar `--claim` para la operación diaria**: el lock actual es permanente durante el día. El resultado puede estar vacío o fallar antes de las 08:30. No se reutiliza un lote de otro día.
+`run-alec-daily.py` agrupa las comprobaciones anteriores, usa el entorno Python del proyecto y deja un resumen privado completo en `applications/alec/daily-report.json`. Su salida breve contiene estado, fecha/lote, presupuesto observado, salud de fuentes, conteos AWS/Get on Board, preparación y códigos seguros de error. `PARTIAL` puede indicar que el marcador aún está `NOT_INSTRUMENTED`; no se presenta como salud confirmada. Si el lote es inválido o falta, no ejecuta preparación ni reutiliza datos anteriores. Sólo prepara borradores locales de `shortlist` AWS válida, con perfil aprobado, revalidación del feed y cuota persistente de tres al día. Ejecutarlo varias veces no reclama el lote. **No usar `--claim` para la operación diaria**: el lock actual es permanente durante el día. Antes de las 08:30 puede faltar el lote.
 
 La configuración AWS real vive en `private/local-aws.json`, la lista de fuentes/activación en `private/aws-activation.json` y las preferencias de Alec en `private/alec/search-policy.active.json`; todos están ignorados por Git. No publicar sus contenidos ni los CVs. El código público puede revisarse en [GitHub](https://github.com/LynxPardelle/aws-job-intelligence); el estado diario está en [progreso](../progress.md).
 
