@@ -11,11 +11,11 @@ Incorporar las ideas útiles para Alec en AJI con interfaces propias, pruebas lo
 | Etapa | Estado | Entrega comprobable |
 | --- | --- | --- |
 | 0. Línea base | Completa | 80 pruebas Python aprobadas; límites AWS, contratos y rutas privadas revisados. |
-| 1. Fuentes | Completa local | Salud por fuente, lector del marcador y vista local de tres categorías Get on Board probados. Falta desplegar la instrumentación en AWS. |
+| 1. Fuentes | Completa | Salud por fuente, lector del marcador y vista local de tres categorías Get on Board probados. Código del Collector actualizado en AWS; el primer marcador nuevo se observará en la próxima corrida. |
 | 2. Calidad de vacantes | Completa local | Revalidación mediante feed ATS antes de `PREPARE`; memoria SQLite privada de URLs por candidato y día. Ausencia en página parcial o error de red queda `unknown`. |
 | 3. Datos de Alec | Completa local | Bitácora salarial y tracker privado con eventos, fuentes, idempotencia y estados; matriz de requisitos respaldada por afirmaciones aprobadas. |
 | 4. Flujo diario | Completa local | Vista previa AWS, salud por fuente y Get on Board local separados; `PREPARE` revalida vigencia y cuenta sólo paquetes íntegros; automatización diaria actualizada sin envíos. |
-| 5. Validación y publicación | En curso | 116 pruebas Python y 13 CDK aprobadas; síntesis real correcta y diff limitado a dos assets Lambda. Faltan auditoría final, publicación y verificación posterior al despliegue de código existente. |
+| 5. Validación y publicación | Completa | 116 pruebas Python y 13 CDK aprobadas; síntesis real, auditoría de Git y diff limitado a dos assets Lambda. Commit `d57f0e1` público; stacks existentes actualizados y diff posterior cero. |
 
 ## Límites de despliegue
 
@@ -33,3 +33,4 @@ Get on Board queda local mientras añadirlo en AWS incremente la cuota de fuente
 | 2026-10-20 | 3–4 | El lote AWS siguió `READY` con diez vacantes en revisión y `--prepare` devolvió cero paquetes. Get on Board devolvió 207 vacantes únicas, 67 en revisión y diez visibles; la categoría `programming` puede estar truncada. El tracker privado contiene 20 descubrimientos y cero envíos. | La cuota de AWS sigue diez; Get on Board no alimenta el lote ni crea CVs. La bitácora salarial añadió cero cifras porque el lote no contiene rangos oficiales completos. |
 | 2026-10-20 | 4 | Una prueba detectó que un PDF faltante se reportaba como paquete existente; otra, que una empresa malformada del feed causaba un error no controlado. | Ambos casos fallaron antes de la corrección y pasaron después; el paquete incompleto queda bloqueado. |
 | 2026-10-20 | 5 | Preflight AWS, 116 pruebas Python, 13 CDK y síntesis real pasaron. `cdk diff --no-change-set` mostró sólo `Code`/metadata de Collector y Publisher; fuentes, límite cuatro, presupuesto, IAM y horarios no cambian. | Diff completo guardado en `private/`; se puede actualizar código de los stacks existentes según `AGENTS.md` tras la auditoría final. |
+| 2026-10-20 | 5 | `d57f0e1` se publicó en `main`. Ambos stacks terminaron `UPDATE_COMPLETE`, el diff posterior dio cero cambios, las cuatro fuentes y dos Scheduler siguieron activos y Get on Board quedó fuera de AWS. Budgets observó USD 0.001 atribuido, bajo avisos USD 3/5. | Se actualizó sólo código de Lambdas; rollback: desplegar el código del commit previo `67ddb6d` tras preflight y diff, sin cambiar activación ni datos privados. El primer marcador con salud por fuente espera la corrida programada siguiente. |
