@@ -1,6 +1,6 @@
 # ADR-001: separación de datos por candidato
 
-Estado: aceptada; rol de Alec desplegado y permisos permitidos/denegados comprobados con STS. La identidad de Héctor y las pruebas cruzadas permanecen pendientes. Fecha: 2026-10-13.
+Estado: aceptada; rol de Alec desplegado y permisos permitidos/denegados comprobados con STS. El principal existente de Héctor se verificó el 2026-10-22; su rol limitado, stack y pruebas cruzadas reales siguen pendientes de aprobación y despliegue. Fecha: 2026-10-13.
 
 ## Decisión
 
@@ -20,9 +20,9 @@ flowchart LR
 
 ## Controles
 
-1. Identidades temporales con políticas por ARN exacto. No compartir claves IAM ni perfiles de navegador.
+1. Ejecución cotidiana mediante sesiones temporales de roles con políticas por ARN exacto. El principal administrativo de origen conserva permisos amplios y no debe usarse como identidad efectiva del cliente diario. No compartir claves IAM ni perfiles de navegador.
 2. `candidate_id` obligatorio en políticas, manifiestos, locks, rutas y auditoría.
-3. Pruebas negativas de lectura y escritura cruzada antes de aprobar despliegue.
+3. Pruebas negativas con fixtures antes de desplegar; pruebas cruzadas reales inmediatamente después de un despliegue aprobado y antes de activar la ejecución diaria.
 4. S3 privado, cifrado y bloqueo público; DynamoDB independiente; TTL y retención documentados.
 5. Una fallida comprobación de lote, fecha, checksum o permiso detiene la ejecución de ese candidato.
 
