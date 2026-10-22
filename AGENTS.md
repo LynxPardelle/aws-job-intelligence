@@ -14,7 +14,7 @@
 - Pedir aprobación expresa para infraestructura nueva, cambios IAM, activación o ampliación de servicios que generen gastos, destrucción de recursos y postulaciones reales. El perfil administrador por sí solo no autoriza esos cambios. El plan maestro exige consentimiento específico y revocable por candidato, vacante y portal antes de cualquier envío.
 - Mantener `AUTO_SUBMIT` desactivado. Un score, un CV generado o un formulario rellenado nunca autorizan un envío.
 - En este equipo, el usuario autorizó expresamente el perfil AWS `default` del usuario administrador existente. No copiar ni exportar su clave al repositorio. Para la futura corrida de Alec, usar una sesión asumida del rol `aji-alec-access-dev` si se despliega; el administrador de origen conserva sus privilegios.
-- Preparar primero este equipo y los stacks `aji-shared-dev` y `aji-alec-dev`. El titular confirmó que ve este reporte en Quick Remote el 2026-10-20 y pidió el handoff en Markdown para Héctor el 2026-10-21. Entregar instrucciones para su propio equipo; no acceder a sus documentos desde el equipo de Alec ni configurar su equipo desde aquí.
+- Preparar primero este equipo y los stacks `aji-shared-dev` y `aji-alec-dev`. El titular confirmó que ve este reporte en Quick Remote el 2026-10-20 y pidió el handoff en Markdown para Héctor el 2026-10-21. El 2026-10-22 Héctor reportó auditoría y pruebas locales en su equipo; desde el primer equipo se compartió sólo una copia técnica depurada del plan maestro con lectura restringida. No acceder a sus CVs o Gmail ni configurar su equipo desde aquí. La identidad, permisos y stack de Héctor siguen pendientes de aprobación expresa.
 - No desactivar salvaguardas de Codex.
 
 ## Datos y aislamiento

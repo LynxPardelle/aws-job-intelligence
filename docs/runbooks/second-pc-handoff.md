@@ -1,6 +1,6 @@
 # Handoff para Héctor: segundo equipo
 
-**Fecha:** 2026-10-21. **Estado:** entregado por solicitud del titular; el equipo y los datos de Héctor aún no se han auditado ni configurado.
+**Fecha:** 2026-10-21. **Estado actualizado:** 2026-10-22. Héctor reportó auditoría local y pruebas en su equipo; no se ha verificado identidad AWS ni desplegado su stack. El enlace privado a la copia técnica del plan se entrega fuera de Git.
 
 ## Contexto comprobado
 
@@ -11,7 +11,7 @@
 
 ## Trabajo en el equipo de Héctor
 
-1. Clonar el repositorio público y leer la especificación principal `AWS_Job_Intelligence_v3_Plan_Maestro_Codex.md` mediante acceso propio autorizado a Drive. La especificación no está en Git. No copiar `private/`, `applications/`, claves AWS, sesiones de navegador ni perfiles de Alec desde el primer equipo.
+1. Clonar el repositorio público y leer la copia técnica depurada de `AWS_Job_Intelligence_v3_Plan_Maestro_Codex.md` con el enlace privado compartido individualmente; Héctor debe comprobar su acceso desde su propia cuenta. La copia omite referencias personales de CV y conserva la especificación técnica. No copiar `private/`, `applications/`, claves AWS, sesiones de navegador ni perfiles de Alec desde el primer equipo.
 2. Auditar Windows, Codex Desktop/Remote, Python 3.11+, Node/npm, Git, AWS CLI, región, identidad AWS, acceso a Drive y Gmail de **Héctor**. Crear su configuración privada sólo en `private/hector/` y sus salidas sólo en `applications/hector/`; verificar que Git las ignore. No asumir que el `default` administrador del equipo de Alec exista o esté autorizado aquí.
 3. Ejecutar pruebas locales con fixtures antes de usar documentos reales:
 
