@@ -1,6 +1,6 @@
 # Automatización diaria: alcance real
 
-Actualizado el 2026-10-21. El plan maestro privado v3 rige este diseño. Sólo Alec y este PC están activos; los datos profesionales permanecen fuera de Git.
+Actualizado el 2026-10-22. El plan maestro privado v3 rige este diseño. Sólo Alec y este PC ejecutan el flujo diario; el stack de Héctor existe, pero su Scheduler y publicación siguen desactivados. Los datos profesionales permanecen fuera de Git.
 
 | Etapa | Estado actual | Siguiente requisito |
 | --- | --- | --- |

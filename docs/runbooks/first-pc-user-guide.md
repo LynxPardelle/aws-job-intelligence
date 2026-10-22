@@ -1,6 +1,6 @@
 # Primer equipo: guía de uso de Alec
 
-Estado verificado el 2026-10-20: la búsqueda diaria en AWS y la revisión diaria de Codex se ejecutaron en sus horarios. El titular confirmó que ve esta conversación desde Quick Remote. Sólo se preparan oportunidades para revisar; no hay envío automático ni postulaciones confirmadas. El handoff del segundo equipo está en pausa por instrucción del titular.
+Estado actualizado el 2026-10-22: la búsqueda diaria de Alec en AWS y la revisión diaria de Codex se ejecutan en sus horarios. El titular confirmó que ve esta conversación desde Quick Remote. Sólo se preparan oportunidades para revisar; no hay envío automático ni postulaciones confirmadas. El stack de Héctor se desplegó aparte, con su Scheduler desactivado y publicación apagada; su equipo continúa la configuración propia.
 
 ## Qué ocurre cada día
 

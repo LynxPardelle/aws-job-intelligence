@@ -42,7 +42,7 @@ Actualización 2026-10-18: los criterios personales recibidos están en `private
 
 El `cdk diff --no-change-set` previo a la activación mostró **dos cambios de código Lambda**: Collector en `aji-shared-dev` y Publisher en `aji-alec-dev`. No mostró cambios de IAM, Scheduler, Budgets ni recursos nuevos. El detalle quedó en `private/approved-code-diff-2026-10-18.txt`, fuera de Git. Una primera lectura anterior falló por la CA de Node y se repitió con `NODE_OPTIONS=--use-system-ca`. Tras la aprobación del usuario se publicó sólo ese código; `private/approved-code-post-deploy-diff-2026-10-18.txt` mostró cero diferencias. La activación posterior se documenta al inicio de este archivo.
 
-El segundo equipo y `aji-hector-dev` esperan el handoff posterior. El código está en un [repositorio público de GitHub](https://github.com/LynxPardelle/aws-job-intelligence); el segundo equipo necesitará sus propios permisos AWS, Drive y Codex. Los perfiles reales, CVs y cualquier postulación requieren consentimiento de cada titular y autorización específica por vacante y portal. `AUTO_SUBMIT` permanece desactivado.
+Actualización del 2026-10-22: `aji-hector-dev` ya se desplegó con rol propio, Scheduler desactivado y publicación apagada. El segundo equipo continúa con su perfil local, pruebas reales de permisos, datos aprobados y cliente diario. El código está en un [repositorio público de GitHub](https://github.com/LynxPardelle/aws-job-intelligence); el segundo equipo necesita su propia sesión AWS, Drive y Codex. Los perfiles reales, CVs y cualquier postulación requieren consentimiento de cada titular y autorización específica por vacante y portal. `AUTO_SUBMIT` permanece desactivado.
 
 ## Costos y cobertura
 

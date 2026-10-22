@@ -1,6 +1,6 @@
 # Estimación preliminar de costos AWS
 
-Fecha del cálculo: 2026-10-13. Estado: **escenario de planeación, no cotización ni autorización para cambios posteriores**. Región confirmada por el usuario: `us-east-1`. Estado operativo al 2026-10-22: `aji-shared-dev` y `aji-alec-dev` están desplegados con Scheduler habilitados; `aji-hector-dev` no existe. La etiqueta `Project` y el presupuesto filtrado `aji-project-dev` están activos; el gasto etiquetado observado es USD 0.002, sujeto a retraso y sin constituir un tope. La tabla siguiente es una hipótesis histórica para el primer equipo y no incorpora el stack de Héctor.
+Fecha del cálculo: 2026-10-13. Estado: **escenario de planeación, no cotización**. Región confirmada por el usuario: `us-east-1`. Estado operativo al 2026-10-22: `aji-shared-dev` y `aji-alec-dev` están desplegados con Scheduler habilitados; `aji-hector-dev` también está desplegado, pero con Scheduler desactivado y publicación apagada. La etiqueta `Project` y el presupuesto filtrado `aji-project-dev` están activos; el gasto etiquetado observado inmediatamente después del despliegue fue USD 0.002, sujeto a retraso y sin constituir un tope. La tabla siguiente es una hipótesis histórica para el primer equipo y no incorpora el stack de Héctor. El stack nuevo añade una alarma estándar (tarifa de lista aproximada USD 0.10/mes completo antes de capa gratuita); almacenamiento y solicitudes dependen del uso. Verificar cargos observados en los próximos días y gasto total de la cuenta.
 
 ## Volumen ilustrativo mensual
 
