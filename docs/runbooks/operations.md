@@ -1,5 +1,7 @@
 # Operación y pausa del primer equipo
 
+**Retiro de Alec, 16 de noviembre de 2026.** Los pasos de Alec en este documento son históricos. Para operaciones posteriores, seleccionar únicamente los stacks necesarios y revisar su diff. Evitar `cdk deploy --all` y excluir `aji-alec-dev` de los despliegues ordinarios, porque la plantilla genérica todavía contiene el publicador y su programación. El Collector compartido presta servicio a Héctor.
+
 Estado comprobado el 2026-10-18: `aji-shared-dev` y `aji-alec-dev` están en `UPDATE_COMPLETE` en `us-east-1`. `aji-collect-dev` y `aji-alec-publish-dev` están `ENABLED` a las 08:00/08:30 `America/Mexico_City`, y sus flags Lambda están en `true`. La tarea local **AJI Alec — revisión diaria** está activa a las 09:00. Sólo Alec; Héctor espera handoff.
 
 ## Corrida normal

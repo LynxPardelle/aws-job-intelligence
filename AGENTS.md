@@ -8,6 +8,7 @@
 
 ## Límites de ejecución
 
+- Desde el 2026-11-16, la operación de AJI para Alec está retirada. Tratar los permisos y procedimientos de Alec descritos abajo como históricos. No ejecutar el flujo diario, PREPARE ni redesplegar `aji-alec-dev` sin una nueva instrucción del titular. El catálogo compartido sigue en uso por el otro candidato.
 - El titular autorizó continuar de forma autónoma la investigación de vacantes y sueldos, lectura acotada de su Gmail, edición y pruebas locales, publicación del código revisado en el repositorio público y operación ordinaria de los stacks **ya aprobados** de Alec en este equipo. No pedir otra aprobación para cada revisión diaria o corrección local.
 - Se permiten auditoría de solo lectura, edición local, pruebas locales, `cdk synth` y `cdk diff`. Una actualización de código de los stacks existentes o de fuentes públicas dentro del Collector ya activo puede continuar con esa autorización vigente sólo si las pruebas pasan, se mantiene la cuota y el presupuesto del proyecto y el diff confirma que no añade recursos, permisos IAM, programaciones ni servicios nuevos. Registrar el diff, resultado y rollback en `docs/progress.md`.
 - El modo local `PREPARE` puede ejecutarse automáticamente después de validar un lote `READY` del día: únicamente sobre `shortlist` sin condiciones desconocidas ni razones de exclusión, con perfil aprobado de Alec, umbral y cuota persistente de tres paquetes al día. Los borradores quedan en `applications/` para revisión; la preparación no autoriza comunicación ni envío.

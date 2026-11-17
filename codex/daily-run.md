@@ -1,5 +1,7 @@
 # Corrida diaria de Alec en Codex Desktop
 
+**Retirada el 2026-11-16.** Este procedimiento se conserva como registro histórico. La tarea de las 09:00 se sustituyó en Codex y ya no ejecuta AJI. El Collector compartido sigue en servicio para el otro candidato.
+
 Estado verificado el 2026-10-22: la tarea nativa **AJI Alec — revisión diaria** está activa a las 09:00 `America/Mexico_City` en este chat y el titular confirmó visibilidad en Quick Remote. El comando integrado produjo `READY` para el lote del día, salud completa de cuatro fuentes y cero errores. El conector Gmail siguió indisponible, pero Brave mostró la cuenta de Alec y permitió lectura acotada; una interfaz de extensión interrumpió después la inspección de una oferta. AWS recolecta a las 08:00 y publica a las 08:30.
 
 1. Desde la raíz del repositorio ejecutar `./.venv/Scripts/python.exe scripts/run-alec-daily.py`. Este comando realiza preflight de identidad AWS, presupuesto observado, salud de fuentes, vista previa AWS, Get on Board local y `PREPARE` condicional, en ese orden. El perfil `default` aprobado es sólo el origen; el pull asume `aji-alec-access-dev`. No exportar claves. No ejecutar por separado `--claim` ni un comando de envío.
